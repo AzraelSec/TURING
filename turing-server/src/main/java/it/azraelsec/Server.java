@@ -17,27 +17,18 @@ public class Server
     private static final int DEFAULT_RMI_PORT = 3400;
     private static final String DEFAULT_DATA_DIR = "./data/";
 
-    private final UsersDB usersDB;
+    private UsersDB usersDB;
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
 
     public Server() {
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
-        usersDB = new UsersDB();
     }
 
     public void bootstrap() {
         checkConfigDirectory();
-    }
-
-    /***
-     * Main method
-     */
-    public static void main( String[] args )
-    {
-        Server s = new Server();
-        s.bootstrap();
+        usersDB = loadUsersDB();
     }
 
     private boolean storeUsersDB() {
@@ -59,6 +50,11 @@ public class Server
         }
     }
 
+    private UsersDB initUsersDB() {
+        UsersDB loadedUsersDB = loadUsersDB();
+        return loadedUsersDB == null ? new UsersDB() : loadedUsersDB;
+    }
+
     private void checkConfigDirectory() {
         File configDir = new File(DEFAULT_DATA_DIR);
         if(!configDir.isDirectory() || !configDir.exists()) configDir.mkdirs();
@@ -68,4 +64,12 @@ public class Server
      * HELPERS
      */
 
+    /***
+     * Main method
+     */
+    public static void main( String[] args )
+    {
+        Server s = new Server();
+        s.bootstrap();
+    }
 }
