@@ -60,10 +60,6 @@ public class Server
         if(!configDir.isDirectory() || !configDir.exists()) configDir.mkdirs();
     }
 
-    /**
-     * HELPERS
-     */
-
     /***
      * Main method
      */
