@@ -5,9 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 public class Server
 {
@@ -65,7 +69,29 @@ public class Server
      */
     public static void main( String[] args )
     {
+        ArgumentParser argpars = ArgumentParsers.newFor("TURING Server")
+            .build()
+            .defaultHelp(true)
+            .description("TURING distributed program server");
+        argpars.addArgument("-c", "--config-dir").help("server JSON configuration file");
+        argpars.addArgument("-t", "--tcp-command-port").help("TCP commands port");
+        argpars.addArgument("-u", "--tcp-multicast-port").help("UDP multicast port");
+        argpars.addArgument("-r", "--rmi-port").help("RMI communication port");
+        argpars.addArgument("-d", "--data-dir").help("server data directory");
+
+        Namespace ns = null;
+
+        try {
+            ns = argpars.parseArgs(args);
+        }
+        catch(ArgumentParserException ex) {
+            argpars.printHelp();
+            System.exit(1);
+        }
+        System.out.println(ns);
+        /*
         Server s = new Server();
         s.bootstrap();
+        */
     }
 }

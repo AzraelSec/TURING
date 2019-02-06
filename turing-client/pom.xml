@@ -8,6 +8,11 @@
   <name>turing-client</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+    <dependency>
+        <groupId>net.sourceforge.argparse4j</groupId>
+        <artifactId>argparse4j</artifactId>
+        <version>0.8.1</version>
+    </dependency>
   </dependencies>
   <properties>
     <maven.compiler.source>1.6</maven.compiler.source>
@@ -16,19 +21,29 @@
   </properties>
   <build>
     <plugins>
+      <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.1.1</version>
-        <configuration>
-          <archive>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+            <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>it.azraelsec.Client</mainClass>
+              <mainClass>it.azraelsec.Server</mainClass>
             </manifest>
           </archive>
-        </configuration>
-      </plugin>
+          </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>
