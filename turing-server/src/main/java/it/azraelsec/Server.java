@@ -48,12 +48,9 @@ public class Server
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         
         checkDataDirectory();
-        usersDB = loadUsersDB();
+        usersDB = initUsersDB();
 
-        System.out.println("TCP_PORT:" + TCP_PORT);
-        System.out.println("UDP_PORT:" + UDP_PORT);
-        System.out.println("RMI_PORT:" + RMI_PORT);
-        System.out.println("DATA_DIR:" + DATA_DIR);
+        System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
     }
 
     public void serve() {
