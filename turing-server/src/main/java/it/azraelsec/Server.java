@@ -2,9 +2,13 @@ package it.azraelsec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.channels.DatagramChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,13 +17,19 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.json.*;
+
 public class Server
 {
-    public static final int DATA_BLOCK_SIZE = 512;
-    private static final int DEFAULT_TCP_PORT = 1337;
-    private static final int DEFAULT_UDP_PORT = 1338;
-    private static final int DEFAULT_RMI_PORT = 3400;
-    private static final String DEFAULT_DATA_DIR = "./data/";
+    public static final int BLOCK_SIZE = 512;
+    private static int TCP_PORT = 1337;
+    private static int UDP_PORT = 1338;
+    private static int RMI_PORT = 3400;
+    private static String DATA_DIR = "./data/";
+
 
     private UsersDB usersDB;
     private final OnlineUsersDB onlineUsersDB;
@@ -30,13 +40,34 @@ public class Server
         onlineUsersDB = new OnlineUsersDB();
     }
 
-    public void bootstrap() {
-        checkConfigDirectory();
+    public void bootstrap(Namespace cmdOptions) {
+        Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
+        TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
+        UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
+        RMI_PORT = Optional.ofNullable( cmdOptions.getInt("rmi_port") ).orElseGet( () -> RMI_PORT );
+        DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
+        
+        checkDataDirectory();
         usersDB = loadUsersDB();
+
+        System.out.println("TCP_PORT:" + TCP_PORT);
+        System.out.println("UDP_PORT:" + UDP_PORT);
+        System.out.println("RMI_PORT:" + RMI_PORT);
+        System.out.println("DATA_DIR:" + DATA_DIR);
+    }
+
+    public void serve() {
+        try(ServerSocketChannel TCPServer = ServerSocketChannel.open(); 
+        DatagramChannel UDPServer = DatagramChannel.open()) {
+
+        }
+        catch(Exception e) {
+            System.out.println("Generic Error: " + e);
+        }
     }
 
     private boolean storeUsersDB() {
-        try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(DEFAULT_DATA_DIR + "db.dat"))) {
+        try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(DATA_DIR + "db.dat"))) {
             output.writeObject(usersDB);
             return true;
         }
@@ -46,7 +77,7 @@ public class Server
     }
 
     private UsersDB loadUsersDB() {
-        try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DEFAULT_DATA_DIR + "db.dat"))) {
+        try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DATA_DIR + "db.dat"))) {
             return (UsersDB) input.readObject();
         }
         catch(IOException | ClassNotFoundException ex) {
@@ -59,9 +90,33 @@ public class Server
         return loadedUsersDB == null ? new UsersDB() : loadedUsersDB;
     }
 
-    private void checkConfigDirectory() {
-        File configDir = new File(DEFAULT_DATA_DIR);
-        if(!configDir.isDirectory() || !configDir.exists()) configDir.mkdirs();
+    private void checkDataDirectory() {
+        File dataDir = new File(DATA_DIR);
+        if(!dataDir.isDirectory() || !dataDir.exists()) dataDir.mkdirs();
+    }
+
+    private void loadConfig(String filePath) {
+        if(checkConfigFile(filePath))
+        {
+            try{
+                JSONObject configs = new JSONObject(Files.lines(new File(filePath).toPath()).collect(Collectors.joining("\n")));
+                
+                TCP_PORT = configs.has("TCP_PORT") ? configs.getInt("TCP_PORT") : TCP_PORT;
+                UDP_PORT = configs.has("UDP_PORT") ? configs.getInt("UDP_PORT") : UDP_PORT;
+                RMI_PORT = configs.has("RMI_PORT") ? configs.getInt("RMI_PORT") : RMI_PORT;
+                DATA_DIR = configs.has("DATA_DIR") ? configs.getString("DATA_DIR") : DATA_DIR;
+            }
+            catch(Exception ex) {
+                System.out.println("JSON parsing error for file:" + filePath);
+                System.out.println("That's the reason:" + ex.getMessage());
+            } 
+        }
+        else System.out.println("Configuration file not found");
+    }
+
+    private boolean checkConfigFile(String filePath) {
+        File configFile = new File(filePath);
+        return configFile.isFile() && configFile.exists();
     }
 
     /***
@@ -73,11 +128,11 @@ public class Server
             .build()
             .defaultHelp(true)
             .description("TURING distributed program server");
-        argpars.addArgument("-c", "--config-dir").help("server JSON configuration file");
-        argpars.addArgument("-t", "--tcp-command-port").help("TCP commands port");
-        argpars.addArgument("-u", "--tcp-multicast-port").help("UDP multicast port");
-        argpars.addArgument("-r", "--rmi-port").help("RMI communication port");
-        argpars.addArgument("-d", "--data-dir").help("server data directory");
+        argpars.addArgument("-t", "--tcp-command-port").help("TCP commands port").type(Integer.class);
+        argpars.addArgument("-u", "--udp-multicast-port").help("UDP multicast port").type(Integer.class);
+        argpars.addArgument("-r", "--rmi-port").help("RMI communication port").type(Integer.class);
+        argpars.addArgument("-d", "--data-dir").help("server data directory").type(String.class);
+        argpars.addArgument("-c", "--config-file").help("server configuration file path").type(String.class);
 
         Namespace ns = null;
 
@@ -88,10 +143,8 @@ public class Server
             argpars.printHelp();
             System.exit(1);
         }
-        System.out.println(ns);
-        /*
+
         Server s = new Server();
-        s.bootstrap();
-        */
+        s.bootstrap(ns);
     }
 }
