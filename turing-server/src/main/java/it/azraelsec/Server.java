@@ -2,11 +2,15 @@ package it.azraelsec;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
@@ -48,21 +52,54 @@ public class Server
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         
         checkDataDirectory();
-        usersDB = loadUsersDB();
+        usersDB = initUsersDB();
 
-        System.out.println("TCP_PORT:" + TCP_PORT);
-        System.out.println("UDP_PORT:" + UDP_PORT);
-        System.out.println("RMI_PORT:" + RMI_PORT);
-        System.out.println("DATA_DIR:" + DATA_DIR);
+        Runtime.getRuntime().addShutdownHook(new Thread(){
+            @Override
+            public void run() {
+                System.out.println("TURING Server is shutting down...");
+                TCPConnectionDispatcher.shutdown();
+                storeUsersDB();
+            }
+        });
+
+        System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
     }
 
     public void serve() {
         try(ServerSocketChannel TCPServer = ServerSocketChannel.open(); 
-        DatagramChannel UDPServer = DatagramChannel.open()) {
+            DatagramChannel UDPServer = DatagramChannel.open()) {
+            TCPServer.bind(new InetSocketAddress(InetAddress.getLocalHost(), TCP_PORT));
+            UDPServer.bind(new InetSocketAddress(InetAddress.getLocalHost(), UDP_PORT));
+            Selector selector = Selector.open();
+            TCPServer.configureBlocking(false);
+            UDPServer.configureBlocking(false);
+            TCPServer.register(selector, SelectionKey.OP_ACCEPT);
+            UDPServer.register(selector, 0);
+            ByteBuffer buffer = ByteBuffer.allocate(Server.BLOCK_SIZE);
 
+            while(true) {
+                selector.selectedKeys().clear();
+                selector.select();
+                buffer.clear();
+
+                for(SelectionKey key : selector.selectedKeys()) {
+                    if(key.isAcceptable()) {
+                        try {
+                            System.out.println("New TCP command connection enstablished");
+                            // Command dispatching and fetching directed to new Thread...
+                        }
+                        catch (Exception ex) {
+                            System.out.println("Error accepting client: " + ex.getMessage());
+                            key.cancel();
+                        }
+                    }
+                }
+            }
         }
         catch(Exception e) {
-            System.out.println("Generic Error: " + e);
+            //System.out.println("Generic fatal error: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -146,5 +183,6 @@ public class Server
 
         Server s = new Server();
         s.bootstrap(ns);
+        s.serve();
     }
 }
