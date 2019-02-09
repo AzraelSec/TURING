@@ -9,7 +9,7 @@
       <src_folder value="file://$MODULE_DIR$/target/generated-test-sources/test-annotations" expected_position="5" />
     </src_description>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -23,5 +23,6 @@
     <orderEntry type="library" name="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER" level="application" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: net.sourceforge.argparse4j:argparse4j:0.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20180813" level="project" />
   </component>
 </module>
