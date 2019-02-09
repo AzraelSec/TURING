@@ -18,6 +18,7 @@ public class Client
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
+    private static String DATA_DIR = "./data/";
 
     public Client () {}
 
@@ -26,9 +27,11 @@ public class Client
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
         UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
         RMI_PORT = Optional.ofNullable( cmdOptions.getInt("rmi_port") ).orElseGet( () -> RMI_PORT );
+        DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("TURING Client is shutting down...");
+            System.out.println("TURING Server is shutting down...");
         }));
+        checkDataDirectory();
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s", TCP_PORT, UDP_PORT, RMI_PORT));
     }
     private void loadConfig(String filePath) {
@@ -39,6 +42,7 @@ public class Client
                 TCP_PORT = configs.has("TCP_PORT") ? configs.getInt("TCP_PORT") : TCP_PORT;
                 UDP_PORT = configs.has("UDP_PORT") ? configs.getInt("UDP_PORT") : UDP_PORT;
                 RMI_PORT = configs.has("RMI_PORT") ? configs.getInt("RMI_PORT") : RMI_PORT;
+                DATA_DIR = configs.has("DATA_DIR") ? configs.getString("DATA_DIR") : DATA_DIR;
             }
             catch(Exception ex) {
                 System.out.println("JSON parsing error for file:" + filePath);
@@ -51,6 +55,11 @@ public class Client
         File configFile = new File(filePath);
         return configFile.isFile() && configFile.exists();
     }
+    private void checkDataDirectory() {
+        File dataDir = new File(DATA_DIR);
+        if(!dataDir.isDirectory() || !dataDir.exists()) dataDir.mkdirs();
+    }
+
 
     /*
     * MAIN METHOD
@@ -65,6 +74,7 @@ public class Client
         argpars.addArgument("-t", "--tcp-command-port").help("TCP commands port").type(Integer.class);
         argpars.addArgument("-u", "--udp-multicast-port").help("UDP multicast port").type(Integer.class);
         argpars.addArgument("-r", "--rmi-port").help("RMI communication port").type(Integer.class);
+        argpars.addArgument("-d", "--data-dir").help("client data directory").type(String.class);
         argpars.addArgument("-c", "--config-file").help("server configuration file path").type(String.class);
 
         Namespace ns = null;
@@ -76,6 +86,7 @@ public class Client
             argpars.printHelp();
             System.exit(1);
         }
+
         Client client = new Client();
         client.setup(ns);
     }
