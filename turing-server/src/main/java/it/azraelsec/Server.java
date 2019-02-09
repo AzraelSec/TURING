@@ -7,11 +7,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +24,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.json.*;
+
+import javax.annotation.processing.SupportedSourceVersion;
 
 public class Server
 {
@@ -78,6 +79,8 @@ public class Server
             UDPServer.register(selector, 0);
             ByteBuffer buffer = ByteBuffer.allocate(Server.BLOCK_SIZE);
 
+            System.out.println("ADDRESS: " + InetAddress.getLocalHost().toString());
+
             while(true) {
                 selector.selectedKeys().clear();
                 selector.select();
@@ -87,7 +90,12 @@ public class Server
                     if(key.isAcceptable()) {
                         try {
                             System.out.println("New TCP command connection enstablished");
+                            SocketChannel socket = TCPServer.accept();
                             // Command dispatching and fetching directed to new Thread...
+                            while(socket.read(buffer) != 0) {
+                                System.out.println(new String(buffer.array(), StandardCharsets.UTF_8));
+                                buffer.clear();
+                            }
                         }
                         catch (Exception ex) {
                             System.out.println("Error accepting client: " + ex.getMessage());

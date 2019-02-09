@@ -4,12 +4,18 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparsers;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.util.Optional;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Client 
@@ -18,21 +24,36 @@ public class Client
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
+    private static String SERVER_ADDRESS = "127.0.0.1";
     private static String DATA_DIR = "./data/";
 
-    public Client () {}
+    private String authenticationToken;
 
-    public void setup(Namespace cmdOptions) {
+    public Client () {
+        authenticationToken = null;
+    }
+
+    private SocketChannel connect() throws IOException{
+        SocketAddress serverAddress = new InetSocketAddress(SERVER_ADDRESS, TCP_PORT);
+        SocketChannel clientSocket = SocketChannel.open();
+        clientSocket.connect(serverAddress);
+        return clientSocket;
+    }
+    private boolean isLogged(){
+        return authenticationToken != null;
+    }
+    private void setup(Namespace cmdOptions) {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
         UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
         RMI_PORT = Optional.ofNullable( cmdOptions.getInt("rmi_port") ).orElseGet( () -> RMI_PORT );
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
+        SERVER_ADDRESS = Optional.ofNullable(cmdOptions.getString("server_address")).orElseGet(() -> SERVER_ADDRESS);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("TURING Server is shutting down...");
         }));
         checkDataDirectory();
-        System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s", TCP_PORT, UDP_PORT, RMI_PORT));
+        System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nSERVER_ADDRESS: %s", TCP_PORT, UDP_PORT, RMI_PORT, SERVER_ADDRESS));
     }
     private void loadConfig(String filePath) {
         if(checkConfigFile(filePath))
@@ -43,6 +64,7 @@ public class Client
                 UDP_PORT = configs.has("UDP_PORT") ? configs.getInt("UDP_PORT") : UDP_PORT;
                 RMI_PORT = configs.has("RMI_PORT") ? configs.getInt("RMI_PORT") : RMI_PORT;
                 DATA_DIR = configs.has("DATA_DIR") ? configs.getString("DATA_DIR") : DATA_DIR;
+                SERVER_ADDRESS = configs.has("SERVER_ADDRESS") ? configs.getString("SERVER_ADDRESS") : SERVER_ADDRESS;
             }
             catch(Exception ex) {
                 System.out.println("JSON parsing error for file:" + filePath);
@@ -60,7 +82,6 @@ public class Client
         if(!dataDir.isDirectory() || !dataDir.exists()) dataDir.mkdirs();
     }
 
-
     /*
     * MAIN METHOD
     * */
@@ -76,6 +97,7 @@ public class Client
         argpars.addArgument("-r", "--rmi-port").help("RMI communication port").type(Integer.class);
         argpars.addArgument("-d", "--data-dir").help("client data directory").type(String.class);
         argpars.addArgument("-c", "--config-file").help("server configuration file path").type(String.class);
+        argpars.addArgument("-s", "--server-address").help("server IP address").type(String.class);
 
         Namespace ns = null;
 
@@ -89,5 +111,23 @@ public class Client
 
         Client client = new Client();
         client.setup(ns);
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(BLOCK_SIZE);
+            SocketChannel socket = client.connect();
+            System.out.println("Client connected");
+            Scanner scanner = new Scanner(System.in);
+            while(true) {
+                System.out.print(">> ");
+                String command = scanner.next();
+                buffer.put(command.getBytes());
+                buffer.flip();
+                int w = socket.write(buffer);
+                buffer.clear();
+                System.out.println("Written " + w + " bytes\n");
+            }
+        }
+        catch (IOException ex) {
+            System.out.println("Connection error:" + ex.getMessage());
+        }
     }
 }
