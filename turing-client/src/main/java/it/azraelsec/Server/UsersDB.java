@@ -1,7 +1,10 @@
-package it.azraelsec;
+package it.azraelsec.Server;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.concurrent.locks.ReentrantReadWriteLock;;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+;
 
 public class UsersDB implements Serializable {
     private static final long serialVersionUID = 1L;

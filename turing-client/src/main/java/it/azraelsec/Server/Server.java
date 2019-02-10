@@ -1,36 +1,27 @@
-package it.azraelsec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.*;
-import java.nio.file.Files;
-import java.rmi.AlreadyBoundException;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+package it.azraelsec.Server;
 
+import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.json.JSONObject;
 
+import java.io.*;
+import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.nio.file.Files;
+import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.json.*;
-
 public class Server {
-    public static final int BLOCK_SIZE = 512;
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
@@ -41,18 +32,12 @@ public class Server {
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
 
-    public Server() throws RemoteException {
-        super();
+    public Server() {
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
     }
 
-    public void bootstrap(Namespace cmdOptions) throws RemoteException, AlreadyBoundException {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("TURING Server is shutting down...");
-            TCPConnectionDispatcher.shutdown();
-            storeUsersDB();
-        }));
+    public void bootstrap(Namespace cmdOptions) throws RemoteException {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
         UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
@@ -64,43 +49,24 @@ public class Server {
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
     }
     public void serve() {
-        try(ServerSocketChannel TCPServer = ServerSocketChannel.open(); 
-            DatagramChannel UDPServer = DatagramChannel.open()) {
+        try(ServerSocket TCPServer = new ServerSocket()) {
             TCPServer.bind(new InetSocketAddress(TCP_PORT));
-            UDPServer.bind(new InetSocketAddress(UDP_PORT));
-            Selector selector = Selector.open();
-            TCPServer.configureBlocking(false);
-            UDPServer.configureBlocking(false);
-            TCPServer.register(selector, SelectionKey.OP_ACCEPT);
-            UDPServer.register(selector, 0);
-            ByteBuffer buffer = ByteBuffer.allocate(Server.BLOCK_SIZE);
-
             System.out.println("ADDRESS: " + InetAddress.getLocalHost().toString());
 
             while(true) {
-                selector.selectedKeys().clear();
-                selector.select();
-                buffer.clear();
-
-                for(SelectionKey key : selector.selectedKeys()) {
-                    if(key.isAcceptable()) {
-                        try {
-                            SocketChannel socket = TCPServer.accept();
-                            System.out.println("New TCP command connection enstablished");
-                            // Command dispatching and fetching directed to new Thread...
-                            TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, socket));
-                        }
-                        catch (Exception ex) {
-                            System.out.println("Error accepting client: " + ex.getMessage());
-                            key.cancel();
-                        }
-                    }
-                }
+                Socket socket = TCPServer.accept();
+                System.out.println("New TCP command connection enstablished");
+                // Command dispatching and fetching directed to new Thread...
+                TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, socket));
             }
         }
-        catch(Exception e) {
-            //System.out.println("Generic fatal error: " + e);
-            e.printStackTrace();
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        finally {
+            System.out.println("TURING it.azraelsec.Server is shutting down...");
+            TCPConnectionDispatcher.shutdown();
+            storeUsersDB();
         }
     }
     private boolean storeUsersDB() {
@@ -153,11 +119,11 @@ public class Server {
         File configFile = new File(filePath);
         return configFile.isFile() && configFile.exists();
     }
-    private void RMIInit() throws RemoteException, AlreadyBoundException {
+    private void RMIInit() throws RemoteException {
         RegistrationStub remoteObject = new RegistrationStub(usersDB, onlineUsersDB);
-        LocateRegistry .createRegistry(RMI_PORT);
+        LocateRegistry.createRegistry(RMI_PORT);
         Registry registry = LocateRegistry.getRegistry(RMI_PORT);
-        registry.bind(RegistrationStub.NAME, remoteObject);
+        registry.rebind(RemoteRegistration.NAME, remoteObject);
     }
 
     /***
@@ -165,7 +131,7 @@ public class Server {
      */
     public static void main( String[] args )
     {
-        ArgumentParser argpars = ArgumentParsers.newFor("TURING Server")
+        ArgumentParser argpars = ArgumentParsers.newFor("TURING it.azraelsec.Server")
             .build()
             .defaultHelp(true)
             .description("TURING distributed program server");
@@ -187,7 +153,7 @@ public class Server {
             argpars.printHelp();
             System.exit(1);
         }
-        catch (RemoteException | AlreadyBoundException ex) {
+        catch (RemoteException ex) {
             System.out.println("RMI Exception:" + ex.getMessage());
         }
     }

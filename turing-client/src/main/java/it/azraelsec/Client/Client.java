@@ -1,33 +1,42 @@
-package it.azraelsec;
+package it.azraelsec.Client;
 
+import it.azraelsec.Protocol.Commands;
+import it.azraelsec.Protocol.Communication;
+import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Client 
 {
-    public static final int BLOCK_SIZE = 512;
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
     private static String SERVER_ADDRESS = "127.0.0.1";
     private static String DATA_DIR = "./data/";
-
     private String authenticationToken;
+    private NotificationThread notificationThread;
+    private Socket clientSocket;
+    private DataOutputStream clientOutputStream;
+    private DataInputStream clientInputStream;
 
     public Client () {
         authenticationToken = null;
@@ -50,7 +59,7 @@ public class Client
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         SERVER_ADDRESS = Optional.ofNullable(cmdOptions.getString("server_address")).orElseGet(() -> SERVER_ADDRESS);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("TURING Server is shutting down...");
+            System.out.println("TURING it.azraelsec.Server is shutting down...");
         }));
         checkDataDirectory();
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nSERVER_ADDRESS: %s", TCP_PORT, UDP_PORT, RMI_PORT, SERVER_ADDRESS));
@@ -111,23 +120,77 @@ public class Client
 
         Client client = new Client();
         client.setup(ns);
+
         try {
-            ByteBuffer buffer = ByteBuffer.allocate(BLOCK_SIZE);
-            SocketChannel socket = client.connect();
-            System.out.println("Client connected");
-            Scanner scanner = new Scanner(System.in);
-            while(true) {
-                System.out.print(">> ");
-                String command = scanner.next();
-                buffer.put(command.getBytes());
-                buffer.flip();
-                int w = socket.write(buffer);
-                buffer.clear();
-                System.out.println("Written " + w + " bytes\n");
+            if(!client.register("prova", "prova"))
+                ;//throw new RuntimeException("Registration failed");
+            client.login("prova", "prova");
+            client.edit("Boh", 1);
+            client.editEnd("Boh", 1);
+            try{
+                Thread.sleep(10000);
             }
+            catch (InterruptedException ex) {
+            }
+            client.logout();
         }
-        catch (IOException ex) {
-            System.out.println("Connection error:" + ex.getMessage());
+        catch (NotBoundException | IOException ex) {
+            System.out.println("Remote Exception:" + ex.getMessage());
         }
+    }
+
+    private boolean register(String username, String password) throws RemoteException, NotBoundException{
+        RemoteRegistration registrationService;
+        Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, RMI_PORT);
+        registrationService = (RemoteRegistration) registry.lookup(RemoteRegistration.NAME);
+        System.out.println("RMI Connection enstablished");
+        return registrationService.register(username, password);
+    }
+
+    private void edit(String docName, int secNumber) {
+        Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, System.out::println, System.out, System.err::println, Commands.EDIT, docName, secNumber);
+    }
+
+    private void login(String username, String password) throws IOException{
+        ServerSocket socket = new ServerSocket(0);
+        notificationThread = new NotificationThread(socket, this);
+        int notificationPort = socket.getLocalPort();
+        notificationThread.start();
+        clientSocket = new Socket();
+        clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
+        clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+        clientInputStream = new DataInputStream(clientSocket.getInputStream());
+        Communication.send(clientOutputStream, clientInputStream, this::gotRegistered, System.err::println, Commands.LOGIN, notificationPort, username, password);
+    }
+
+    private void logout() {
+        Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
+        try {
+            notificationThread.getSocket().close();
+            notificationThread.interrupt();
+            clientInputStream.close();
+            clientOutputStream.close();
+            clientSocket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void editEnd(String docName, int secNumber) {
+        Communication.send(clientOutputStream, clientInputStream, s -> {
+            InputStream stream = new ByteArrayInputStream("Yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeah it's working even more!".getBytes(StandardCharsets.UTF_8));
+            try {
+                Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }, System.err::println, Commands.EDIT_END, docName, secNumber);
+    }
+
+    public void gotRegistered(String tk){
+        System.out.println("logged in, token:" + tk);
+        authenticationToken = tk;
     }
 }
