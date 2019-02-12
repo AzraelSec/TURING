@@ -34,6 +34,12 @@ public class OnlineUsersDB {
         else return record.getUser();
     }
 
+    public User getUserByToken(String token) {
+        for(OnlineUserRecord record : onlineUsers.values())
+            if(record.verifyToken(token)) return record.getUser();
+        return null;
+    }
+
     private class OnlineUserRecord {
         private final User user;
         private final String token;

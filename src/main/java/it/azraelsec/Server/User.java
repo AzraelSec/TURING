@@ -86,4 +86,9 @@ public class User implements Serializable {
         catch(NoSuchAlgorithmException ex){}
         return null;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ((User) obj).getUsername().compareTo(username) == 0;
+    }
 }

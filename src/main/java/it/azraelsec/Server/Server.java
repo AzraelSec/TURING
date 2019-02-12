@@ -1,5 +1,6 @@
 package it.azraelsec.Server;
 
+import it.azraelsec.Documents.DocumentDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -31,13 +32,19 @@ public class Server {
     private UsersDB usersDB;
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
+    private final DocumentDatabase documentDatabase;
 
     public Server() {
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
+        documentDatabase = new DocumentDatabase();
     }
 
-    public void bootstrap(Namespace cmdOptions) throws RemoteException {
+    public static String getDataDirectoryPath() {
+        return DATA_DIR;
+    }
+
+    private void bootstrap(Namespace cmdOptions) throws RemoteException {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
         UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
@@ -48,7 +55,7 @@ public class Server {
         RMIInit();
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
     }
-    public void serve() {
+    private void serve() {
         try(ServerSocket TCPServer = new ServerSocket()) {
             TCPServer.bind(new InetSocketAddress(TCP_PORT));
             System.out.println("ADDRESS: " + InetAddress.getLocalHost().toString());
@@ -56,8 +63,7 @@ public class Server {
             while(true) {
                 Socket socket = TCPServer.accept();
                 System.out.println("New TCP command connection enstablished");
-                // Command dispatching and fetching directed to new Thread...
-                TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, socket));
+                TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, documentDatabase, socket));
             }
         }
         catch (IOException ex) {
@@ -141,7 +147,7 @@ public class Server {
         argpars.addArgument("-d", "--data-dir").help("server data directory").type(String.class);
         argpars.addArgument("-c", "--config-file").help("server configuration file path").type(String.class);
 
-        Namespace ns = null;
+        Namespace ns;
 
         try {
             ns = argpars.parseArgs(args);

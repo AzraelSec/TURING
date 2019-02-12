@@ -14,7 +14,10 @@ public class Communication {
         commandsArgsType.put(Commands.FAILURE, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.SUCCESS, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.EDIT, new Class<?>[] {String.class, Integer.class});
-        commandsArgsType.put(Commands.EDIT_END, new Class<?>[] {String.class, Integer.class});
+        commandsArgsType.put(Commands.EDIT_END, new Class<?>[] {});
+        commandsArgsType.put(Commands.CREATE, new Class<?>[] {String.class, Integer.class});
+        commandsArgsType.put(Commands.SHOW_SECTION, new Class<?>[] {String.class, Integer.class});
+        commandsArgsType.put(Commands.SHOW_DOCUMENT, new Class<?>[] {String.class});
     }
 
     public static void sendAndReceiveStream(DataOutputStream outputStream, DataInputStream inputStream, Handler onSuccess, OutputStream stream, Handler onFailure, Commands command, Object...args) {
@@ -75,7 +78,7 @@ public class Communication {
             Class<?>[] argsType = commandsArgsType.get(command);
             Object[] args = new Object[argsType.length];
             for(int i = 0; i < args.length; i++) {
-                if(argsType[i] == Integer.class) args[i] = (Integer) inputStream.readInt();
+                if(argsType[i] == Integer.class) args[i] = inputStream.readInt();
                 else if(argsType[i] == String.class) {
                     int length = inputStream.readInt();
                     byte[] buffer = new byte[length];
