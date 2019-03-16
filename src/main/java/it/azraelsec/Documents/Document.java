@@ -1,12 +1,10 @@
 package it.azraelsec.Documents;
 
-import it.azraelsec.Server.Server;
 import it.azraelsec.Server.User;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Document implements Serializable {
     private static final long serialVersionUID = 1L;

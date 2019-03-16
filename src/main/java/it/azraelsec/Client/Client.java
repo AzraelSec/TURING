@@ -119,7 +119,7 @@ public class Client {
         try {
             client.register("prova", "prova");
             client.login("prova", "prova");
-            client.create("Documento", 2);
+            client.create("Documento",2);
             client.edit("Documento", 1, null);
             try {
                 Thread.sleep(40000);
@@ -132,6 +132,16 @@ public class Client {
             System.out.println("Remote Exception:" + ex.getMessage());
         }
     }
+
+    private void commandDispatchingLoop() {
+        String command = null;
+        Scanner input = new Scanner(System.in);
+        do {
+            System.out.print("TURING> ");
+            String args = input.nextLine();
+        } while(command.compareTo("exit") == 0);
+    }
+
 
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
         RemoteRegistration registrationService;
@@ -213,6 +223,10 @@ public class Client {
         }
     }
 
+    /**
+    * todo: to implement
+    * @deprecated
+    * */
     private void showDocument(String docName, String outputName) {
         if (isLogged()) {
             String filename = DATA_DIR + outputName;
