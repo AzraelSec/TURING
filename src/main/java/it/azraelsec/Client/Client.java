@@ -117,6 +117,13 @@ public class Client {
         client.setup(ns);
 
         try {
+            client.commandDispatchingLoop();
+        } catch (IOException | NotBoundException ex) {
+            client.printExeption(ex);
+        }
+
+        /*
+        try {
             client.register("prova", "prova");
             client.login("prova", "prova");
             client.create("Documento",2);
@@ -130,16 +137,92 @@ public class Client {
             client.logout();
         } catch (NotBoundException | IOException ex) {
             System.out.println("Remote Exception:" + ex.getMessage());
-        }
+        }*/
     }
 
-    private void commandDispatchingLoop() {
+    private void commandDispatchingLoop() throws NotBoundException, RemoteException, IOException {
         String command = null;
         Scanner input = new Scanner(System.in);
         do {
-            System.out.print("TURING> ");
-            String args = input.nextLine();
-        } while(command.compareTo("exit") == 0);
+            System.out.print("turing@127.0.0.1# ");
+            String argsLine = input.nextLine();
+            String[] args = argsLine.split(" ");
+            if(argsLine.length() > 0 && args.length > 0) {
+                command = args[0];
+                try {
+                    switch(command) {
+                        case "exit": break;
+                        case "register":
+                            if(args.length > 2) {
+                                String username = args[1];
+                                String password = args[2];
+                                if(this.register(username, password))
+                                    System.out.println("User " + username + " correctly registered!");
+                                else
+                                    System.out.println("Error in user registration! Probably user already exists!");
+                            }
+                            else throw new CommandDispatchingException();
+                            break;
+                        case "login":
+                            if(args.length > 2) {
+                                String username = args[1];
+                                String password = args[2];
+                                this.login(username, password);
+                            }
+                            break;
+                        case "create":
+                            if(args.length > 1){
+                                try {
+                                    String docName = args[1];
+                                    int secNum = Integer.valueOf(args[2]);
+                                    this.create(docName, secNum);
+                                } catch (NumberFormatException ex) {
+                                    throw new CommandDispatchingException();
+                                }
+                            }
+                            break;
+                        case "edit":
+                            if(args.length > 2) {
+                                String tmpFile = null;
+                                if(args.length > 3) tmpFile = args[3];
+                                try {
+                                    String docName = args[1];
+                                    int secNum = Integer.valueOf(args[2]);
+                                    this.edit(docName, secNum, tmpFile);
+                                } catch (NumberFormatException ex) {
+                                    throw new CommandDispatchingException();
+                                }
+                            }
+                            break;
+                        case "stopedit":
+                            this.editEnd();
+                            break;
+                        case "showsec":
+                            if(args.length > 2) {
+                                String outputFile = null;
+                                if(args.length > 3) outputFile = args[3];
+                                try {
+                                    String docName = args[1];
+                                    int secNum = Integer.valueOf(args[2]);
+                                    this.showSection(docName, secNum, outputFile);
+                                } catch (NumberFormatException ex) {
+                                    throw new CommandDispatchingException();
+                                }
+                            }
+                            break;
+                        case "logout":
+                            this.logout();
+                            break;
+                        case "help":
+                            this.printCommandsHelp();
+                            break;
+                    }
+                }
+                catch (CommandDispatchingException ex) {
+                    System.out.println("Error in command arguments dispatching");
+                }
+            }
+        } while(command.compareTo("exit") != 0);
     }
 
 
@@ -160,18 +243,22 @@ public class Client {
                 printExeption(ex);
             }
         }
+        else System.out.println("You're not logged in");
     }
 
     private void login(String username, String password) throws IOException {
-        ServerSocket socket = new ServerSocket(0);
-        notificationThread = new NotificationThread(socket, this);
-        int notificationPort = socket.getLocalPort();
-        notificationThread.start();
-        clientSocket = new Socket();
-        clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
-        clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-        clientInputStream = new DataInputStream(clientSocket.getInputStream());
-        Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, notificationPort, username, password);
+        if (!isLogged()) {
+            ServerSocket socket = new ServerSocket(0);
+            notificationThread = new NotificationThread(socket, this);
+            int notificationPort = socket.getLocalPort();
+            notificationThread.start();
+            clientSocket = new Socket();
+            clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
+            clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+            clientInputStream = new DataInputStream(clientSocket.getInputStream());
+            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, notificationPort, username, password);
+        }
+        else System.out.println("You're already logged in");
     }
 
     private void logout() {
@@ -183,14 +270,16 @@ public class Client {
                 clientInputStream.close();
                 clientOutputStream.close();
                 clientSocket.close();
+                authenticationToken = null;
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        else System.out.println("You're not logged in");
     }
 
     private void editEnd() {
-        if (isLogged())
+        if (isLogged()) {
             Communication.send(clientOutputStream, clientInputStream, s -> {
                 try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.READ);
                      InputStream stream = Channels.newInputStream(fileChannel)) {
@@ -200,11 +289,14 @@ public class Client {
                     ex.printStackTrace();
                 }
             }, System.err::println, Commands.EDIT_END);
+        }
+        else System.out.println("You're not logged in");
     }
 
     private void create(String docName, int secNumber) {
         if (isLogged())
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.CREATE, docName, secNumber);
+        else System.out.println("You're not logged in");
     }
 
     private void showSection(String docName, int secNumber, String chosenFilename) {
@@ -220,7 +312,7 @@ public class Client {
             } catch (IOException ex) {
                 printExeption(ex);
             }
-        }
+        } else System.out.println("You're not logged in");
     }
 
     /**
@@ -241,9 +333,24 @@ public class Client {
                 printExeption(ex);
             }
         }
+        else System.out.println("You're not logged in");
     }
 
     private void printExeption(Exception ex) {
         System.out.println("Error:" + ex.getMessage());
+    }
+
+    private void printCommandsHelp() {
+        String message =
+                "The following commands are available:\n" +
+                "  help: to show this help message\n" +
+                "  register USER PASS: to register a new account with username USER and password PASS\n" +
+                "  login USER PASS: to login using USER and PASS credentials\n"+
+                "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
+                "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
+                "  stopedit: to stop the current editing session\n" +
+                "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
+                "  logout: to logout\n";
+        System.out.println(message);
     }
 }
