@@ -32,6 +32,7 @@ public class Client {
     private static String DATA_DIR = "./client_data/";
     private String authenticationToken;
     private NotificationThread notificationThread;
+    private int notificationPort;
     private Socket clientSocket;
     private DataOutputStream clientOutputStream;
     private DataInputStream clientInputStream;
@@ -57,6 +58,17 @@ public class Client {
         }));
         checkDataDirectory();
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nSERVER_ADDRESS: %s", TCP_PORT, UDP_PORT, RMI_PORT, SERVER_ADDRESS));
+    }
+
+    private void connect() throws IOException {
+        ServerSocket socket = new ServerSocket(0);
+        notificationThread = new NotificationThread(socket, this);
+        notificationPort = socket.getLocalPort();
+        notificationThread.start();
+        clientSocket = new Socket();
+        clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
+        clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+        clientInputStream = new DataInputStream(clientSocket.getInputStream());
     }
 
     private void loadConfig(String filePath) {
@@ -114,27 +126,17 @@ public class Client {
         client.setup(ns);
 
         try {
+            client.connect();
             client.commandDispatchingLoop();
         } catch (IOException | NotBoundException ex) {
             client.printExeption(ex);
-        }
-
-        /*
-        try {
-            client.register("prova", "prova");
-            client.login("prova", "prova");
-            client.create("Documento",2);
-            client.edit("Documento", 1, null);
+        } finally {
             try {
-                Thread.sleep(40000);
-            } catch (InterruptedException e) {
-            }
-            client.editEnd();
-            client.showSection("Documento", 1, null);
-            client.logout();
-        } catch (NotBoundException | IOException ex) {
-            System.out.println("Remote Exception:" + ex.getMessage());
-        }*/
+                client.clientSocket.close();
+                client.clientInputStream.close();
+                client.clientOutputStream.close();
+            } catch (Exception ignore) {}
+        }
     }
 
     private void commandDispatchingLoop() throws NotBoundException, RemoteException, IOException {
@@ -253,17 +255,8 @@ public class Client {
     }
 
     private void login(String username, String password) throws IOException {
-        if (!isLogged()) {
-            ServerSocket socket = new ServerSocket(0);
-            notificationThread = new NotificationThread(socket, this);
-            int notificationPort = socket.getLocalPort();
-            notificationThread.start();
-            clientSocket = new Socket();
-            clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
-            clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-            clientInputStream = new DataInputStream(clientSocket.getInputStream());
+        if (!isLogged())
             Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, notificationPort, username, password);
-        }
         else System.out.println("You're already logged in");
     }
 
@@ -353,7 +346,7 @@ public class Client {
     }
 
     private void printExeption(Exception ex) {
-        System.out.println("Error:" + ex.getMessage());
+        System.err.println(ex.getMessage());
     }
 
     private void printCommandsHelp() {
