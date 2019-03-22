@@ -10,6 +10,7 @@ public enum Commands {
     SHOW_SECTION,
     SHOW_DOCUMENT,
     LIST,
+    SHARE,
     CHAT_SEND,
     CHAT_RECV,
     SUCCESS,

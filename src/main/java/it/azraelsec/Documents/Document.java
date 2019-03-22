@@ -61,4 +61,8 @@ public class Document implements Serializable {
             if (!modifiers.contains(user)) modifiers.add(user);
         }
     }
+
+    public boolean isCreator(User user) {
+        return owner.equals(user);
+    }
 }

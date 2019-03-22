@@ -42,7 +42,7 @@ public class Client {
     }
 
     private boolean isLogged() {
-        return authenticationToken != null;
+        return authenticationToken != null && clientSocket.isConnected();
     }
 
     private void setup(Namespace cmdOptions) {
@@ -165,7 +165,7 @@ public class Client {
                                 String username = args[1];
                                 String password = args[2];
                                 this.login(username, password);
-                            }
+                            } else throw new CommandDispatchingException();
                             break;
                         case "create":
                             if(args.length > 1){
@@ -176,7 +176,7 @@ public class Client {
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
-                            }
+                            } else throw new CommandDispatchingException();
                             break;
                         case "edit":
                             if(args.length > 2) {
@@ -189,7 +189,7 @@ public class Client {
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
-                            }
+                            } else throw new CommandDispatchingException();
                             break;
                         case "stopedit":
                             this.editEnd();
@@ -205,13 +205,20 @@ public class Client {
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
-                            }
+                            } else throw new CommandDispatchingException();
                             break;
                         case "logout":
                             this.logout();
                             break;
                         case "list":
                             this.documentsList();
+                            break;
+                        case "share":
+                            if(args.length > 2) {
+                                String username = args[1];
+                                String docName = args[2];
+                                share(username, docName);
+                            } else throw new CommandDispatchingException();
                             break;
                         case "help":
                             this.printCommandsHelp();
@@ -320,6 +327,10 @@ public class Client {
         } else System.out.println("You're not logged in");
     }
 
+    private void share(String user, String docName) {
+        Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.SHARE, user, docName);
+    }
+
     /**
     * todo: to implement
     * @deprecated
@@ -356,7 +367,8 @@ public class Client {
                 "  stopedit: to stop the current editing session\n" +
                 "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
                 "  logout: to logout\n" +
-                "  list: to list all the documents you are able to see and edit";
+                "  list: to list all the documents you are able to see and edit" +
+                "  share USER DOC: to share a document with someone";
         System.out.println(message);
     }
 }

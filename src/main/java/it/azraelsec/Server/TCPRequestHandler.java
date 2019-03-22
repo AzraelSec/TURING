@@ -41,6 +41,7 @@ public class TCPRequestHandler implements Runnable {
         handlers.put(Commands.SHOW_SECTION, this::onShowSection);
         handlers.put(Commands.SHOW_DOCUMENT, this::onShowDocument);
         handlers.put(Commands.LIST, this::onList);
+        handlers.put(Commands.SHARE, this::onShare);
         sessionToken = null;
         editingSection = null;
     }
@@ -212,6 +213,24 @@ public class TCPRequestHandler implements Runnable {
                     sendback.send(Commands.SUCCESS, encodedNames);
                 }
                 else sendback.send(Commands.SUCCESS, "None");
+            } else sendback.send(Commands.FAILURE, "User's token cannot be found");
+        } else sendback.send(Commands.FAILURE, "You're not logged in");
+    }
+
+    private void onShare(Object[] args, Result sendback) {
+        if(isSessionAlive()) {
+            User user;
+            if((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
+                User targetUser;
+                if((targetUser = usersDB.getUserByUsername((String)args[0])) != null) {
+                    Document doc;
+                    if((doc = documentDatabase.getDocumentByName((String)args[1])) != null) {
+                        if(doc.isCreator(user)) {
+                            doc.addModifier(targetUser);
+                            sendback.send(Commands.SUCCESS, "User " + targetUser.getUsername() + " can now access the document " + doc.getName());
+                        } else sendback.send(Commands.FAILURE, "You need to be the document's creator to share it");
+                    } else sendback.send(Commands.FAILURE, "Target document doesn't exist");
+                } else sendback.send(Commands.FAILURE, "Target user doesn't exist");
             } else sendback.send(Commands.FAILURE, "User's token cannot be found");
         } else sendback.send(Commands.FAILURE, "You're not logged in");
     }

@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-;
-
 public class UsersDB implements Serializable {
     private static final long serialVersionUID = 1L;
     private final ArrayList<User> users;
@@ -36,7 +34,7 @@ public class UsersDB implements Serializable {
         return getUserByUsername(username) == null;
     }
 
-    private User getUserByUsername(String username) {
+    public User getUserByUsername(String username) {
         mutex.readLock().lock();
         for (User user : users) {
             if(user.getUsername().compareTo(username) == 0) {
