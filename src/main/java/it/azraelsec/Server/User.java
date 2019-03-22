@@ -34,34 +34,8 @@ public class User implements Serializable {
     }
 
     public String generateToken() {
-        String tokenString = password + String.valueOf(System.currentTimeMillis());
+        String tokenString = password + System.currentTimeMillis();
         return getHashedString(tokenString);
-    }
-
-    public void addOwnDocument(Integer newDoc, boolean isOnline) {
-        synchronized(ownDocuments) {
-            if(!ownDocuments.contains(newDoc)){
-                ownDocuments.add(newDoc);
-                if(!isOnline) {
-                    synchronized(unreadNotifications) {
-                        if(!unreadNotifications.contains(newDoc))
-                            unreadNotifications.add(newDoc);
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean canEdit(Integer doc) {
-        synchronized(ownDocuments) {
-            return ownDocuments.contains(doc);
-        }
-    }
-
-    public ArrayList<Integer> getownDocuments() {
-        synchronized(ownDocuments) {
-            return new ArrayList<Integer>(ownDocuments);
-        }
     }
 
     public ArrayList<Integer> getUnreadNotifications() {
@@ -83,7 +57,7 @@ public class User implements Serializable {
             }
             return sb.toString();
         }
-        catch(NoSuchAlgorithmException ex){}
+        catch(NoSuchAlgorithmException ignore){}
         return null;
     }
 

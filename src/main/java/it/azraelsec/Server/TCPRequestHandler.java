@@ -1,7 +1,7 @@
 package it.azraelsec.Server;
 
 import it.azraelsec.Documents.Document;
-import it.azraelsec.Documents.DocumentDatabase;
+import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Documents.Section;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
@@ -11,9 +11,8 @@ import it.azraelsec.Protocol.Result;
 import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 public class TCPRequestHandler implements Runnable {
     OnlineUsersDB onlineUsersDB;
@@ -21,12 +20,12 @@ public class TCPRequestHandler implements Runnable {
     Socket socket;
     DataInputStream socketInputStream;
     DataOutputStream socketOutputStream;
-    DocumentDatabase documentDatabase;
+    DocumentsDatabase documentDatabase;
     String sessionToken;
     Section editingSection;
     Map<Commands, Execution> handlers;
 
-    public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentDatabase documentDatabase, Socket socket) throws IOException {
+    public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, Socket socket) throws IOException {
         this.onlineUsersDB = onlineUsersDB;
         this.usersDB = usersDB;
         this.socket = socket;
@@ -41,6 +40,7 @@ public class TCPRequestHandler implements Runnable {
         handlers.put(Commands.CREATE, this::onCreate);
         handlers.put(Commands.SHOW_SECTION, this::onShowSection);
         handlers.put(Commands.SHOW_DOCUMENT, this::onShowDocument);
+        handlers.put(Commands.LIST, this::onList);
         sessionToken = null;
         editingSection = null;
     }
@@ -188,9 +188,9 @@ public class TCPRequestHandler implements Runnable {
      */
     private void onShowDocument(Object[] args, Result sendback) {
         if (isSessionAlive()) {
-            String documeentName = (String) args[0];
+            String documentName = (String) args[0];
             Document doc;
-            if ((doc = documentDatabase.getDocumentByName(documeentName)) != null) {
+            if ((doc = documentDatabase.getDocumentByName(documentName)) != null) {
                 User user;
                 if ((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
                     if (doc.canAccess(user)) {
@@ -199,6 +199,20 @@ public class TCPRequestHandler implements Runnable {
                     } else sendback.send(Commands.FAILURE, "You haven't got permissions to modify this file");
                 } else sendback.send(Commands.FAILURE, "User's token cannot be found");
             } else sendback.send(Commands.FAILURE, "Document doesn't exist");
+        } else sendback.send(Commands.FAILURE, "You're not logged in");
+    }
+
+    private void onList(Object[] args, Result sendback) {
+        if(isSessionAlive()) {
+            User user;
+            if((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
+                String[] documentsNames = documentDatabase.getAllDocumentsNames(user);
+                if(documentsNames.length > 0) {
+                    String encodedNames = String.join(",", documentsNames);
+                    sendback.send(Commands.SUCCESS, encodedNames);
+                }
+                else sendback.send(Commands.SUCCESS, "None");
+            } else sendback.send(Commands.FAILURE, "User's token cannot be found");
         } else sendback.send(Commands.FAILURE, "You're not logged in");
     }
 

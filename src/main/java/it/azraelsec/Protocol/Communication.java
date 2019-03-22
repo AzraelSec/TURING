@@ -18,6 +18,7 @@ public class Communication {
         commandsArgsType.put(Commands.CREATE, new Class<?>[] {String.class, Integer.class});
         commandsArgsType.put(Commands.SHOW_SECTION, new Class<?>[] {String.class, Integer.class});
         commandsArgsType.put(Commands.SHOW_DOCUMENT, new Class<?>[] {String.class});
+        commandsArgsType.put(Commands.LIST, new Class<?>[] {});
     }
 
     public static void sendAndReceiveStream(DataOutputStream outputStream, DataInputStream inputStream, Handler onSuccess, OutputStream stream, Handler onFailure, Commands command, Object...args) {

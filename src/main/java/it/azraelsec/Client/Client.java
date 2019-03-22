@@ -11,11 +11,8 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
-import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -213,6 +210,9 @@ public class Client {
                         case "logout":
                             this.logout();
                             break;
+                        case "list":
+                            this.documentsList();
+                            break;
                         case "help":
                             this.printCommandsHelp();
                             break;
@@ -224,7 +224,6 @@ public class Client {
             }
         } while(command.compareTo("exit") != 0);
     }
-
 
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
         RemoteRegistration registrationService;
@@ -315,6 +314,12 @@ public class Client {
         } else System.out.println("You're not logged in");
     }
 
+    private void documentsList() {
+        if(isLogged()) {
+            Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
+        } else System.out.println("You're not logged in");
+    }
+
     /**
     * todo: to implement
     * @deprecated
@@ -350,7 +355,8 @@ public class Client {
                 "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
                 "  stopedit: to stop the current editing session\n" +
                 "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
-                "  logout: to logout\n";
+                "  logout: to logout\n" +
+                "  list: to list all the documents you are able to see and edit";
         System.out.println(message);
     }
 }

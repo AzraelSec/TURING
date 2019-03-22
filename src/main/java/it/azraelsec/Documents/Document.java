@@ -50,15 +50,15 @@ public class Document implements Serializable {
         }
     }
 
-    public Iterator<Section> getSectionsIterator() {
-        return sections.iterator();
+    public boolean canAccess(User user) {
+        synchronized (modifiers) {
+            return modifiers.contains(user) || owner.equals(user);
+        }
     }
 
-    synchronized public boolean canAccess(User user) {
-        return modifiers.contains(user) || owner.equals(user);
-    }
-
-    synchronized public void addModifier(User user) {
-        if(!modifiers.contains(user)) modifiers.add(user);
+    public void addModifier(User user) {
+        synchronized (modifiers) {
+            if (!modifiers.contains(user)) modifiers.add(user);
+        }
     }
 }

@@ -1,6 +1,6 @@
 package it.azraelsec.Server;
 
-import it.azraelsec.Documents.DocumentDatabase;
+import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -10,10 +10,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.*;
 import java.nio.file.Files;
-import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -32,12 +29,12 @@ public class Server {
     private UsersDB usersDB;
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
-    private final DocumentDatabase documentDatabase;
+    private final DocumentsDatabase documentDatabase;
 
     public Server() {
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
-        documentDatabase = new DocumentDatabase();
+        documentDatabase = new DocumentsDatabase();
     }
 
     public static String getDataDirectoryPath() {
