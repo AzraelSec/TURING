@@ -18,9 +18,9 @@ public class Section implements Serializable {
     private transient ReentrantLock lock;
     private String filepath;
 
-    public Section(String rootPath)  {
+    public Section(String rootPath, String filename)  {
         userOnEditing = null;
-        filepath = rootPath + "/" +  System.currentTimeMillis() + ".section";
+        filepath = rootPath + "/" +  filename + ".section";
         lock = new ReentrantLock();
     }
 

@@ -208,6 +208,14 @@ public class Client {
                                 }
                             } else throw new CommandDispatchingException();
                             break;
+                        case "showdoc":
+                            if(args.length > 1) {
+                                String docName = args[1];
+                                String outputFile = null;
+                                if(args.length > 2) outputFile = args[2];
+                                showDocument(docName, outputFile);
+                            } else throw new CommandDispatchingException();
+                            break;
                         case "logout":
                             this.logout();
                             break;
@@ -304,7 +312,7 @@ public class Client {
                     if(editor.compareTo("None") != 0)
                         System.out.println(String.format("%s is editing the section right now", editor));
                     else System.out.println("None is editing this section");
-                }, fileStream, System.err::println, Commands.EDIT, docName, secNumber);
+                }, fileStream, System.err::println, Commands.SHOW_SECTION, docName, secNumber);
             } catch (IOException ex) {
                 printExeption(ex);
             }
@@ -312,29 +320,25 @@ public class Client {
     }
 
     private void documentsList() {
-        if(isLogged()) {
+        if(isLogged())
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
-        } else System.out.println("You're not logged in");
+        else System.out.println("You're not logged in");
     }
 
     private void share(String user, String docName) {
         Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.SHARE, user, docName);
     }
 
-    /**
-    * todo: to implement
-    * @deprecated
-    * */
     private void showDocument(String docName, String outputName) {
         if (isLogged()) {
-            String filename = DATA_DIR + outputName;
+            String filename = DATA_DIR + (outputName == null ?  docName : outputName);
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
+                OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
+                    Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
                     if(onEditingSections.compareTo("None") != 0)
                         System.out.println(String.format("These are the on editing sections: %s", onEditingSections));
                     else System.out.println("None is editing this document");
-                }, fileStream, System.err::println, Commands.EDIT, docName);
+                }, fileStream, System.err::println, Commands.SHOW_DOCUMENT, docName);
             } catch (IOException ex) {
                 printExeption(ex);
             }
@@ -356,6 +360,7 @@ public class Client {
                 "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
                 "  stopedit: to stop the current editing session\n" +
                 "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
+                "  showdoc DOC (OUT): to download the content concatenation of all the document's sections (using OUT output filename)\n" +
                 "  logout: to logout\n" +
                 "  list: to list all the documents you are able to see and edit" +
                 "  share USER DOC: to share a document with someone";

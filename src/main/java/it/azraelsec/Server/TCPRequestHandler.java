@@ -53,11 +53,12 @@ public class TCPRequestHandler implements Runnable {
 
     @Override
     public void run() {
+        do Communication.receive(socketInputStream, socketOutputStream, handlers); while (isSessionAlive());
+        /*
         try {
             InetSocketAddress clientNotificationService = new InetSocketAddress(socket.getInetAddress(), Client.NOTIFICATION_PORT);
             notificationSocket = new Socket();
             notificationSocket.connect(clientNotificationService);
-            do Communication.receive(socketInputStream, socketOutputStream, handlers); while (isSessionAlive());
         } catch(IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -70,6 +71,7 @@ public class TCPRequestHandler implements Runnable {
                 ex.printStackTrace();
             }
         }
+       */
     }
 
     private void onLogin(Object[] args, Result sendback) {
@@ -173,44 +175,50 @@ public class TCPRequestHandler implements Runnable {
                 User user;
                 if ((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
                     if (doc.canAccess(user)) {
-                        if (editingSection == null) {
-                            Section section;
-                            if ((section = doc.getSection(sectionNumber)) != null) {
-                                User onEditingUser;
-                                if ((onEditingUser = section.getUserOnEditing()) != null)
-                                    sendback.send(Commands.SUCCESS, onEditingUser.getUsername());
-                                else sendback.send(Commands.SUCCESS, "None");
-                                try (InputStream fileStream = section.getFileInputStream()) {
-                                    Communication.receiveAndSendStream(socketInputStream, socketOutputStream, fileStream);
-                                    editingSection = section;
-                                } catch (IOException ex) {
-                                    sendback.send(Commands.FAILURE, ex.getMessage());
-                                }
-                            } else sendback.send(Commands.FAILURE, "Section's not found");
-                        } else sendback.send(Commands.FAILURE, "You can modify one section at time");
+                        Section section;
+                        if ((section = doc.getSection(sectionNumber)) != null) {
+                            User onEditingUser;
+                            if ((onEditingUser = section.getUserOnEditing()) != null)
+                                sendback.send(Commands.SUCCESS, onEditingUser.getUsername());
+                            else sendback.send(Commands.SUCCESS, "None");
+                            try (InputStream fileStream = section.getFileInputStream()) {
+                                Communication.receiveAndSendStream(socketInputStream, socketOutputStream, fileStream);
+                            } catch (IOException ex) {
+                                sendback.send(Commands.FAILURE, ex.getMessage());
+                            }
+                        } else sendback.send(Commands.FAILURE, "Section's not found");
                     } else sendback.send(Commands.FAILURE, "You haven't got permissions to modify this file");
                 } else sendback.send(Commands.FAILURE, "User's token cannot be found");
             } else sendback.send(Commands.FAILURE, "Document doesn't exist");
         } else sendback.send(Commands.FAILURE, "You're not logged in");
     }
 
-    /**
-     * @deprecated DO NOT USE IT!
-     * todo: not working...
-     */
     private void onShowDocument(Object[] args, Result sendback) {
-        if (isSessionAlive()) {
-            String documentName = (String) args[0];
-            Document doc;
-            if ((doc = documentDatabase.getDocumentByName(documentName)) != null) {
-                User user;
-                if ((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
-                    if (doc.canAccess(user)) {
-                        /*todo: MAGIC!!!!*/
-                        //Communication.receiveAndSendStream(socketInputStream, socketOutputStream, fileStream);
+        if(isSessionAlive()) {
+            User user;
+            if ((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
+                Document doc;
+                String documentName = (String) args[0];
+                if ((doc = documentDatabase.getDocumentByName(documentName)) != null) {
+                    if(doc.canAccess(user)) {
+                        InputStream docIS = null;
+                        try {
+                            String sectionsList = String.join(",", doc.getOnEditingSections());
+                            sendback.send(Commands.SUCCESS, sectionsList);
+                            docIS = doc.getDocumentInputStream();
+                            Communication.receiveAndSendStream(socketInputStream, socketOutputStream, docIS);
+                        }  catch (IOException ex) {
+                            sendback.send(Commands.FAILURE, ex.getMessage());
+                            if (docIS != null)
+                                try {
+                                    docIS.close();
+                                } catch (IOException ex1) {
+                                    ex1.printStackTrace();
+                                }
+                        }
                     } else sendback.send(Commands.FAILURE, "You haven't got permissions to modify this file");
-                } else sendback.send(Commands.FAILURE, "User's token cannot be found");
-            } else sendback.send(Commands.FAILURE, "Document doesn't exist");
+                } else sendback.send(Commands.FAILURE, "Document doesn't exist");
+            } else sendback.send(Commands.FAILURE, "User's token cannot be found");
         } else sendback.send(Commands.FAILURE, "You're not logged in");
     }
 

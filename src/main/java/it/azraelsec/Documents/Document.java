@@ -5,6 +5,7 @@ import it.azraelsec.Server.User;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Vector;
 
 public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -32,8 +33,9 @@ public class Document implements Serializable {
         if(!document.exists() || !document.isDirectory())
             if(!document.mkdir()) throw new IOException("Document: Impossible to create a document");
         ArrayList<Section> sections = new ArrayList<>();
+        long timestamp = System.currentTimeMillis();
         for(int i = 0; i < sectionsNumber; i++) {
-            Section sec = new Section(documentLocation);
+            Section sec = new Section(documentLocation, String.valueOf(timestamp + i));
             sections.add(sec);
             File sectionFile = new File(sec.getFilePath());
             sectionFile.createNewFile();
@@ -64,5 +66,23 @@ public class Document implements Serializable {
 
     public boolean isCreator(User user) {
         return owner.equals(user);
+    }
+
+    public InputStream getDocumentInputStream() throws IOException {
+        Vector<InputStream> secISVector = new Vector<>();
+        for(Section sec : sections)
+            secISVector.add(sec.getFileInputStream());
+        SequenceInputStream docIS = new SequenceInputStream(secISVector.elements());
+        return docIS;
+    }
+
+    public String[] getOnEditingSections() {
+        ArrayList<String> onEditingSections = new ArrayList<>();
+        for(int i = 0; i < sections.size(); i++) {
+            Section section = sections.get(i);
+            if(section.getUserOnEditing() != null)
+                onEditingSections.add(String.valueOf(i));
+        }
+        return onEditingSections.toArray(new String[0]);
     }
 }
