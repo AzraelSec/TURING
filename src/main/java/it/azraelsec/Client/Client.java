@@ -25,6 +25,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Client {
+    public static int NOTIFICATION_PORT = 1338;
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
@@ -61,10 +62,8 @@ public class Client {
     }
 
     private void connect() throws IOException {
-        ServerSocket socket = new ServerSocket(0);
-        notificationThread = new NotificationThread(socket, this);
-        notificationPort = socket.getLocalPort();
-        notificationThread.start();
+        //notificationThread = new NotificationThread(this); todo: to implement
+        //notificationThread.start();
         clientSocket = new Socket();
         clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
         clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
@@ -264,8 +263,6 @@ public class Client {
         if (isLogged()) {
             Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
             try {
-                notificationThread.getSocket().close();
-                notificationThread.interrupt();
                 clientInputStream.close();
                 clientOutputStream.close();
                 clientSocket.close();

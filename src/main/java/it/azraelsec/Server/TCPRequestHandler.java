@@ -1,5 +1,6 @@
 package it.azraelsec.Server;
 
+import it.azraelsec.Client.Client;
 import it.azraelsec.Documents.Document;
 import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Documents.Section;
@@ -9,21 +10,25 @@ import it.azraelsec.Protocol.Execution;
 import it.azraelsec.Protocol.Result;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class TCPRequestHandler implements Runnable {
-    OnlineUsersDB onlineUsersDB;
-    UsersDB usersDB;
-    Socket socket;
-    DataInputStream socketInputStream;
-    DataOutputStream socketOutputStream;
-    DocumentsDatabase documentDatabase;
-    String sessionToken;
-    Section editingSection;
-    Map<Commands, Execution> handlers;
+    private OnlineUsersDB onlineUsersDB;
+    private UsersDB usersDB;
+    private DocumentsDatabase documentDatabase;
+    private String sessionToken;
+    private Section editingSection;
+    private Map<Commands, Execution> handlers;
+
+    private Socket notificationSocket;
+
+    private Socket socket;
+    private DataInputStream socketInputStream;
+    private DataOutputStream socketOutputStream;
 
     public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, Socket socket) throws IOException {
         this.onlineUsersDB = onlineUsersDB;
@@ -49,9 +54,15 @@ public class TCPRequestHandler implements Runnable {
     @Override
     public void run() {
         try {
+            InetSocketAddress clientNotificationService = new InetSocketAddress(socket.getInetAddress(), Client.NOTIFICATION_PORT);
+            notificationSocket = new Socket();
+            notificationSocket.connect(clientNotificationService);
             do Communication.receive(socketInputStream, socketOutputStream, handlers); while (isSessionAlive());
+        } catch(IOException ex) {
+            ex.printStackTrace();
         } finally {
             try {
+                notificationSocket.close();
                 socketInputStream.close();
                 socketOutputStream.close();
                 socket.close();

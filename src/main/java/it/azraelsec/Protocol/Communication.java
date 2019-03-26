@@ -20,6 +20,7 @@ public class Communication {
         commandsArgsType.put(Commands.SHOW_DOCUMENT, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.LIST, new Class<?>[] {});
         commandsArgsType.put(Commands.SHARE, new Class<?>[] {String.class, String.class});
+        commandsArgsType.put(Commands.NEW_NOTIFICATION, new Class<?>[] {String.class, String.class});
     }
 
     public static void sendAndReceiveStream(DataOutputStream outputStream, DataInputStream inputStream, Handler onSuccess, OutputStream stream, Handler onFailure, Commands command, Object...args) {

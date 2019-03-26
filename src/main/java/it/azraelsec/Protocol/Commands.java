@@ -14,7 +14,9 @@ public enum Commands {
     CHAT_SEND,
     CHAT_RECV,
     SUCCESS,
-    FAILURE;
+    FAILURE,
+    NEW_NOTIFICATION,
+    EXIT;
 
     public int getCode() {
         return this.ordinal();
