@@ -1,6 +1,6 @@
 package it.azraelsec.Client;
 
-import it.azraelsec.Notification.NotificationServerThread;
+import it.azraelsec.Notification.NotificationClientThread;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
 import it.azraelsec.Protocol.RemoteRegistration;
@@ -38,12 +38,13 @@ public class Client {
     private DataOutputStream clientOutputStream;
     private DataInputStream clientInputStream;
     private String onEditingFilename = null;
-    private NotificationServerThread notificationServerThread;
+    private NotificationClientThread notificationThread;
     private ArrayList<String> notificationQueue;
 
     public Client() {
         authenticationToken = null;
         notificationQueue = new ArrayList<>();
+        notificationThread = new NotificationClientThread(notificationQueue);
     }
 
     private boolean isLogged() {
@@ -65,8 +66,7 @@ public class Client {
     }
 
     private void connect() throws IOException {
-        //notificationServerThread = new NotificationServerThread(this); todo: to implement
-        //notificationServerThread.start();
+        notificationThread.start();
         clientSocket = new Socket();
         clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
         clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
@@ -130,6 +130,7 @@ public class Client {
         try {
             client.connect();
             client.commandDispatchingLoop();
+            client.notificationThread.interrupt();
         } catch (IOException | NotBoundException ex) {
             client.printExeption(ex);
         } finally {
@@ -141,7 +142,7 @@ public class Client {
         }
     }
 
-    private void commandDispatchingLoop() throws NotBoundException, RemoteException, IOException {
+    private void commandDispatchingLoop() throws NotBoundException, IOException {
         String command = null;
         Scanner input = new Scanner(System.in);
         do {
@@ -157,7 +158,7 @@ public class Client {
                             if(args.length > 2) {
                                 String username = args[1];
                                 String password = args[2];
-                                if(this.register(username, password))
+                                if(register(username, password))
                                     System.out.println("User " + username + " correctly registered!");
                                 else
                                     System.out.println("Error in user registration! Probably user already exists!");
@@ -168,7 +169,7 @@ public class Client {
                             if(args.length > 2) {
                                 String username = args[1];
                                 String password = args[2];
-                                this.login(username, password);
+                                login(username, password);
                             } else throw new CommandDispatchingException();
                             break;
                         case "create":
@@ -176,7 +177,7 @@ public class Client {
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
-                                    this.create(docName, secNum);
+                                    create(docName, secNum);
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
@@ -189,7 +190,7 @@ public class Client {
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
-                                    this.edit(docName, secNum, tmpFile);
+                                    edit(docName, secNum, tmpFile);
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
@@ -205,7 +206,7 @@ public class Client {
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
-                                    this.showSection(docName, secNum, outputFile);
+                                    showSection(docName, secNum, outputFile);
                                 } catch (NumberFormatException ex) {
                                     throw new CommandDispatchingException();
                                 }
@@ -220,10 +221,10 @@ public class Client {
                             } else throw new CommandDispatchingException();
                             break;
                         case "logout":
-                            this.logout();
+                            logout();
                             break;
                         case "list":
-                            this.documentsList();
+                            documentsList();
                             break;
                         case "share":
                             if(args.length > 2) {
@@ -233,7 +234,7 @@ public class Client {
                             } else throw new CommandDispatchingException();
                             break;
                         case "help":
-                            this.printCommandsHelp();
+                            printCommandsHelp();
                             break;
                     }
                 }
@@ -264,7 +265,7 @@ public class Client {
         else System.out.println("You're not logged in");
     }
 
-    private void login(String username, String password) throws IOException {
+    private void login(String username, String password) {
         if (!isLogged())
             Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, username, password);
         else System.out.println("You're already logged in");
@@ -272,15 +273,8 @@ public class Client {
 
     private void logout() {
         if (isLogged()) {
+            authenticationToken = null;
             Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
-            try {
-                clientInputStream.close();
-                clientOutputStream.close();
-                clientSocket.close();
-                authenticationToken = null;
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
         }
         else System.out.println("You're not logged in");
     }
@@ -334,7 +328,7 @@ public class Client {
 
     private void showDocument(String docName, String outputName) {
         if (isLogged()) {
-            String filename = DATA_DIR + (outputName == null ?  docName : outputName);
+            String filename = DATA_DIR + (outputName == null ? docName : outputName);
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
                     Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {

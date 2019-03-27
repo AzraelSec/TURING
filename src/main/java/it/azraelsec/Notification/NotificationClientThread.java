@@ -35,10 +35,12 @@ public class NotificationClientThread extends Thread {
         ServerSocket socket;
         try {
             socket = new ServerSocket(Client.NOTIFICATION_PORT);
-            notificationSocket = socket.accept();
-            outputStream = new DataOutputStream(notificationSocket.getOutputStream());
-            inputStream = new DataInputStream(notificationSocket.getInputStream());
-            while(!closing) Communication.receive(inputStream, outputStream, handlers);
+            while(!isInterrupted()) {
+                notificationSocket = socket.accept();
+                outputStream = new DataOutputStream(notificationSocket.getOutputStream());
+                inputStream = new DataInputStream(notificationSocket.getInputStream());
+                while(!closing) Communication.receive(inputStream, outputStream, handlers);
+            }
         } catch (IOException ignored) {
             System.out.println("NotificationClientThread is dead");
             ignored.printStackTrace();

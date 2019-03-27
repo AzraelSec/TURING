@@ -48,7 +48,9 @@ public class NotificationServerThread extends Thread {
             }
             Communication.send(outputStream, inputStream, ignore -> {}, ignore -> {}, Commands.EXIT);
         }
-        catch (IOException ignore) {}
+        catch (IOException ignore) {
+            ignore.printStackTrace();
+        }
     }
 }
 

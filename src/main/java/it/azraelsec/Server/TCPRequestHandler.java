@@ -13,6 +13,7 @@ import it.azraelsec.Protocol.Result;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class TCPRequestHandler implements Runnable {
     private DataInputStream socketInputStream;
     private DataOutputStream socketOutputStream;
 
-    private final NotificationServerThread notificationThread; //todo: da qui
+    private NotificationServerThread notificationThread;
 
     public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, Socket socket) throws IOException {
         this.onlineUsersDB = onlineUsersDB;
@@ -50,32 +51,11 @@ public class TCPRequestHandler implements Runnable {
         handlers.put(Commands.SHARE, this::onShare);
         sessionToken = null;
         editingSection = null;
-        notificationThread = new NotificationServerThread(socket.getRemoteSocketAddress().toString(), Client.NOTIFICATION_PORT);
     }
 
     @Override
     public void run() {
-        String clientAddress = socket.getRemoteSocketAddress().toString();
-
-        do Communication.receive(socketInputStream, socketOutputStream, handlers); while (isSessionAlive());
-        /*
-        try {
-            InetSocketAddress clientNotificationService = new InetSocketAddress(socket.getInetAddress(), Client.NOTIFICATION_PORT);
-            notificationSocket = new Socket();
-            notificationSocket.connect(clientNotificationService);
-        } catch(IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                notificationSocket.close();
-                socketInputStream.close();
-                socketOutputStream.close();
-                socket.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-       */
+        do Communication.receive(socketInputStream, socketOutputStream, handlers); while (true);
     }
 
     private void onLogin(Object[] args, Result sendback) {
@@ -84,6 +64,8 @@ public class TCPRequestHandler implements Runnable {
             if ((user = usersDB.doLogin((String) args[0], (String) args[1])) != null) {
                 String token;
                 if ((token = onlineUsersDB.login(user)) != null) {
+                    notificationThread = new NotificationServerThread(user, socket.getInetAddress().getHostName(), Client.NOTIFICATION_PORT);
+                    notificationThread.start();
                     sessionToken = token;
                     System.out.println("New user logged in: " + args[0]);
                     sendback.send(Commands.SUCCESS, token);
@@ -94,6 +76,7 @@ public class TCPRequestHandler implements Runnable {
 
     private void onLogout(Object[] args, Result sendback) {
         sessionToken = null;
+        notificationThread.interrupt();
         System.out.println("Client's gone out");
         sendback.send(Commands.SUCCESS, "Good-bye");
     }
