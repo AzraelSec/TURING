@@ -4,6 +4,7 @@ import it.azraelsec.Client.Client;
 import it.azraelsec.Documents.Document;
 import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Documents.Section;
+import it.azraelsec.Notification.NotificationServerThread;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
 import it.azraelsec.Protocol.Execution;
@@ -24,11 +25,11 @@ public class TCPRequestHandler implements Runnable {
     private Section editingSection;
     private Map<Commands, Execution> handlers;
 
-    private Socket notificationSocket;
-
     private Socket socket;
     private DataInputStream socketInputStream;
     private DataOutputStream socketOutputStream;
+
+    private final NotificationServerThread notificationThread; //todo: da qui
 
     public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, Socket socket) throws IOException {
         this.onlineUsersDB = onlineUsersDB;
@@ -49,10 +50,13 @@ public class TCPRequestHandler implements Runnable {
         handlers.put(Commands.SHARE, this::onShare);
         sessionToken = null;
         editingSection = null;
+        notificationThread = new NotificationServerThread(socket.getRemoteSocketAddress().toString(), Client.NOTIFICATION_PORT);
     }
 
     @Override
     public void run() {
+        String clientAddress = socket.getRemoteSocketAddress().toString();
+
         do Communication.receive(socketInputStream, socketOutputStream, handlers); while (isSessionAlive());
         /*
         try {
@@ -77,11 +81,11 @@ public class TCPRequestHandler implements Runnable {
     private void onLogin(Object[] args, Result sendback) {
         if (!isSessionAlive()) {
             User user;
-            if ((user = usersDB.doLogin((String) args[1], (String) args[2])) != null) {
+            if ((user = usersDB.doLogin((String) args[0], (String) args[1])) != null) {
                 String token;
                 if ((token = onlineUsersDB.login(user)) != null) {
                     sessionToken = token;
-                    System.out.println("New user logged in: " + args[1]);
+                    System.out.println("New user logged in: " + args[0]);
                     sendback.send(Commands.SUCCESS, token);
                 } else sendback.send(Commands.FAILURE, "Login failed: token generation failed");
             } else sendback.send(Commands.FAILURE, "Login failed: authentication error");
@@ -96,10 +100,10 @@ public class TCPRequestHandler implements Runnable {
 
     private void onEdit(Object[] args, Result sendback) {
         if (isSessionAlive()) {
-            String documeentName = (String) args[0];
+            String documentName = (String) args[0];
             Document doc;
             int sectionNumber = (Integer) args[1];
-            if ((doc = documentDatabase.getDocumentByName(documeentName)) != null) {
+            if ((doc = documentDatabase.getDocumentByName(documentName)) != null) {
                 User user;
                 if ((user = onlineUsersDB.getUserByToken(sessionToken)) != null) {
                     if (doc.canAccess(user)) {
@@ -201,20 +205,21 @@ public class TCPRequestHandler implements Runnable {
                 String documentName = (String) args[0];
                 if ((doc = documentDatabase.getDocumentByName(documentName)) != null) {
                     if(doc.canAccess(user)) {
-                        InputStream docIS = null;
+                        InputStream documentInputStream = null;
                         try {
                             String sectionsList = String.join(",", doc.getOnEditingSections());
                             sendback.send(Commands.SUCCESS, sectionsList);
-                            docIS = doc.getDocumentInputStream();
-                            Communication.receiveAndSendStream(socketInputStream, socketOutputStream, docIS);
+                            documentInputStream = doc.getDocumentInputStream();
+                            Communication.receiveAndSendStream(socketInputStream, socketOutputStream, documentInputStream);
                         }  catch (IOException ex) {
                             sendback.send(Commands.FAILURE, ex.getMessage());
-                            if (docIS != null)
+                            if (documentInputStream != null) {
                                 try {
-                                    docIS.close();
+                                    documentInputStream.close();
                                 } catch (IOException ex1) {
                                     ex1.printStackTrace();
                                 }
+                            }
                         }
                     } else sendback.send(Commands.FAILURE, "You haven't got permissions to modify this file");
                 } else sendback.send(Commands.FAILURE, "Document doesn't exist");
@@ -246,6 +251,7 @@ public class TCPRequestHandler implements Runnable {
                     if((doc = documentDatabase.getDocumentByName((String)args[1])) != null) {
                         if(doc.isCreator(user)) {
                             doc.addModifier(targetUser);
+                            targetUser.pushNewNotification(doc.getName());
                             sendback.send(Commands.SUCCESS, "User " + targetUser.getUsername() + " can now access the document " + doc.getName());
                         } else sendback.send(Commands.FAILURE, "You need to be the document's creator to share it");
                     } else sendback.send(Commands.FAILURE, "Target document doesn't exist");

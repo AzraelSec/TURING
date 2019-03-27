@@ -1,5 +1,6 @@
 package it.azraelsec.Client;
 
+import it.azraelsec.Notification.NotificationServerThread;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
 import it.azraelsec.Protocol.RemoteRegistration;
@@ -20,6 +21,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -32,15 +34,16 @@ public class Client {
     private static String SERVER_ADDRESS = "127.0.0.1";
     private static String DATA_DIR = "./client_data/";
     private String authenticationToken;
-    private NotificationThread notificationThread;
-    private int notificationPort;
     private Socket clientSocket;
     private DataOutputStream clientOutputStream;
     private DataInputStream clientInputStream;
     private String onEditingFilename = null;
+    private NotificationServerThread notificationServerThread;
+    private ArrayList<String> notificationQueue;
 
     public Client() {
         authenticationToken = null;
+        notificationQueue = new ArrayList<>();
     }
 
     private boolean isLogged() {
@@ -62,8 +65,8 @@ public class Client {
     }
 
     private void connect() throws IOException {
-        //notificationThread = new NotificationThread(this); todo: to implement
-        //notificationThread.start();
+        //notificationServerThread = new NotificationServerThread(this); todo: to implement
+        //notificationServerThread.start();
         clientSocket = new Socket();
         clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
         clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
@@ -263,7 +266,7 @@ public class Client {
 
     private void login(String username, String password) throws IOException {
         if (!isLogged())
-            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, notificationPort, username, password);
+            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, username, password);
         else System.out.println("You're already logged in");
     }
 

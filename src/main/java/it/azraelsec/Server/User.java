@@ -1,5 +1,7 @@
 package it.azraelsec.Server;
 
+import it.azraelsec.Documents.Document;
+
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,14 +15,12 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private final String username;
     public final String password;
-    private final ArrayList<Integer> ownDocuments;
-    private final ArrayList<Integer> unreadNotifications;
+    private final ArrayList<String> unreadNotifications;
 
     public User(String username, String password) {
         this.username = username;
         this.password = getHashedString(password);
-        ownDocuments = new ArrayList<Integer>();
-        unreadNotifications = new ArrayList<Integer>();
+        unreadNotifications = new ArrayList<String>();
     }
 
     public String getUsername() {
@@ -38,11 +38,17 @@ public class User implements Serializable {
         return getHashedString(tokenString);
     }
 
-    public ArrayList<Integer> getUnreadNotifications() {
-        synchronized(this.unreadNotifications) {
-            ArrayList<Integer> unreadNotifications = new ArrayList<Integer>(this.unreadNotifications);
+    public ArrayList<String> getUnreadNotifications() {
+        synchronized(unreadNotifications) {
+            ArrayList<String> unreadNotifications = new ArrayList<>(this.unreadNotifications);
             this.unreadNotifications.clear();
             return unreadNotifications;
+        }
+    }
+
+    public void pushNewNotification(String doc) {
+        synchronized (unreadNotifications) {
+            unreadNotifications.add(doc);
         }
     }
 

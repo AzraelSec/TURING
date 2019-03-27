@@ -15,7 +15,7 @@ public enum Commands {
     CHAT_RECV,
     SUCCESS,
     FAILURE,
-    NEW_NOTIFICATION,
+    NEW_NOTIFICATIONS,
     EXIT;
 
     public int getCode() {

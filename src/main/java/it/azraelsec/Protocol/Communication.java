@@ -9,7 +9,7 @@ public class Communication {
     private static final int SEGMENT_SIZE = 10;
     private static Map<Commands, Class<?>[]> commandsArgsType = new HashMap<>();
     static {
-        commandsArgsType.put(Commands.LOGIN, new Class<?>[] {Integer.class, String.class, String.class});
+        commandsArgsType.put(Commands.LOGIN, new Class<?>[] {String.class, String.class});
         commandsArgsType.put(Commands.LOGOUT, new Class<?>[] {});
         commandsArgsType.put(Commands.FAILURE, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.SUCCESS, new Class<?>[] {String.class});
@@ -20,7 +20,7 @@ public class Communication {
         commandsArgsType.put(Commands.SHOW_DOCUMENT, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.LIST, new Class<?>[] {});
         commandsArgsType.put(Commands.SHARE, new Class<?>[] {String.class, String.class});
-        commandsArgsType.put(Commands.NEW_NOTIFICATION, new Class<?>[] {String.class, String.class});
+        commandsArgsType.put(Commands.NEW_NOTIFICATIONS, new Class<?>[] {String.class});
     }
 
     public static void sendAndReceiveStream(DataOutputStream outputStream, DataInputStream inputStream, Handler onSuccess, OutputStream stream, Handler onFailure, Commands command, Object...args) {
