@@ -21,11 +21,13 @@ public class NotificationServerThread extends Thread {
     private final String hostname;
     private final int port;
     private final User user;
+    private boolean closing;
 
     public NotificationServerThread(User user, String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
         this.user = user;
+        closing = false;
         super.setDaemon(true);
     }
 
@@ -40,7 +42,7 @@ public class NotificationServerThread extends Thread {
             inputStream = new DataInputStream(socket.getInputStream());
             outputStream = new DataOutputStream(socket.getOutputStream());
 
-            while(!isInterrupted()) {
+            while(!closing) {
                 List<String> notificationsQueue = user.getUnreadNotifications();
                 if(!notificationsQueue.isEmpty())
                     Communication.send(outputStream, inputStream, ignore -> {}, ignore -> {}, Commands.NEW_NOTIFICATIONS, String.join(",", notificationsQueue));
@@ -51,6 +53,10 @@ public class NotificationServerThread extends Thread {
         catch (IOException ignore) {
             ignore.printStackTrace();
         }
+    }
+
+    public void close() {
+        closing = true;
     }
 }
 

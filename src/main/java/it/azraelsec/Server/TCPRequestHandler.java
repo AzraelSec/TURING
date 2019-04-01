@@ -76,7 +76,10 @@ public class TCPRequestHandler implements Runnable {
 
     private void onLogout(Object[] args, Result sendback) {
         sessionToken = null;
-        notificationThread.interrupt();
+        notificationThread.close();
+        try {
+            notificationThread.join();
+        } catch (InterruptedException ignore) {}
         System.out.println("Client's gone out");
         sendback.send(Commands.SUCCESS, "Good-bye");
     }

@@ -21,6 +21,7 @@ public class Communication {
         commandsArgsType.put(Commands.LIST, new Class<?>[] {});
         commandsArgsType.put(Commands.SHARE, new Class<?>[] {String.class, String.class});
         commandsArgsType.put(Commands.NEW_NOTIFICATIONS, new Class<?>[] {String.class});
+        commandsArgsType.put(Commands.EXIT, new Class<?>[] {});
     }
 
     public static void sendAndReceiveStream(DataOutputStream outputStream, DataInputStream inputStream, Handler onSuccess, OutputStream stream, Handler onFailure, Commands command, Object...args) {

@@ -24,26 +24,35 @@ public class NotificationClientThread extends Thread {
         handlers.put(Commands.EXIT, this::onClosing);
         this.localNotificationQueue = localNotificationQueue;
         closing = false;
-        super.setDaemon(true);
     }
 
     @Override
     public void run() {
-        Socket notificationSocket;
-        DataInputStream inputStream;
-        DataOutputStream outputStream;
-        ServerSocket socket;
+        Socket notificationSocket = null;
+        DataInputStream inputStream = null;
+        DataOutputStream outputStream = null;
+        ServerSocket socket = null;
         try {
             socket = new ServerSocket(Client.NOTIFICATION_PORT);
-            while(!isInterrupted()) {
+            while(!Thread.currentThread().isInterrupted()) {
                 notificationSocket = socket.accept();
                 outputStream = new DataOutputStream(notificationSocket.getOutputStream());
                 inputStream = new DataInputStream(notificationSocket.getInputStream());
-                while(!closing) Communication.receive(inputStream, outputStream, handlers);
+                closing = false;
+                while(!closing)
+                    Communication.receive(inputStream, outputStream, handlers);
             }
         } catch (IOException ignored) {
             System.out.println("NotificationClientThread is dead");
             ignored.printStackTrace();
+        }
+        finally {
+            try {
+                if(socket != null) socket.close();
+                if(notificationSocket != null) notificationSocket.close();
+                if(outputStream != null) outputStream.close();
+                if(inputStream != null) inputStream.close();
+            } catch (IOException ignore) {}
         }
     }
 

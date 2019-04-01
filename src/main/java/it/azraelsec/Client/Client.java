@@ -138,7 +138,8 @@ public class Client {
                 client.clientSocket.close();
                 client.clientInputStream.close();
                 client.clientOutputStream.close();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
     }
 
@@ -149,31 +150,31 @@ public class Client {
             System.out.print("turing@127.0.0.1# ");
             String argsLine = input.nextLine();
             String[] args = argsLine.split(" ");
-            if(argsLine.length() > 0 && args.length > 0) {
+            if (argsLine.length() > 0 && args.length > 0) {
                 command = args[0];
                 try {
-                    switch(command) {
-                        case "exit": break;
+                    switch (command) {
+                        case "exit":
+                            break;
                         case "register":
-                            if(args.length > 2) {
+                            if (args.length > 2) {
                                 String username = args[1];
                                 String password = args[2];
-                                if(register(username, password))
+                                if (register(username, password))
                                     System.out.println("User " + username + " correctly registered!");
                                 else
                                     System.out.println("Error in user registration! Probably user already exists!");
-                            }
-                            else throw new CommandDispatchingException();
+                            } else throw new CommandDispatchingException();
                             break;
                         case "login":
-                            if(args.length > 2) {
+                            if (args.length > 2) {
                                 String username = args[1];
                                 String password = args[2];
                                 login(username, password);
                             } else throw new CommandDispatchingException();
                             break;
                         case "create":
-                            if(args.length > 1){
+                            if (args.length > 2) {
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
@@ -184,9 +185,9 @@ public class Client {
                             } else throw new CommandDispatchingException();
                             break;
                         case "edit":
-                            if(args.length > 2) {
+                            if (args.length > 2) {
                                 String tmpFile = null;
-                                if(args.length > 3) tmpFile = args[3];
+                                if (args.length > 3) tmpFile = args[3];
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
@@ -200,9 +201,9 @@ public class Client {
                             this.editEnd();
                             break;
                         case "showsec":
-                            if(args.length > 2) {
+                            if (args.length > 2) {
                                 String outputFile = null;
-                                if(args.length > 3) outputFile = args[3];
+                                if (args.length > 3) outputFile = args[3];
                                 try {
                                     String docName = args[1];
                                     int secNum = Integer.valueOf(args[2]);
@@ -213,10 +214,10 @@ public class Client {
                             } else throw new CommandDispatchingException();
                             break;
                         case "showdoc":
-                            if(args.length > 1) {
+                            if (args.length > 1) {
                                 String docName = args[1];
                                 String outputFile = null;
-                                if(args.length > 2) outputFile = args[2];
+                                if (args.length > 2) outputFile = args[2];
                                 showDocument(docName, outputFile);
                             } else throw new CommandDispatchingException();
                             break;
@@ -227,22 +228,24 @@ public class Client {
                             documentsList();
                             break;
                         case "share":
-                            if(args.length > 2) {
+                            if (args.length > 2) {
                                 String username = args[1];
                                 String docName = args[2];
                                 share(username, docName);
                             } else throw new CommandDispatchingException();
                             break;
+                        case "news":
+                            printNews();
+                            break;
                         case "help":
                             printCommandsHelp();
                             break;
                     }
-                }
-                catch (CommandDispatchingException ex) {
+                } catch (CommandDispatchingException ex) {
                     System.out.println("Error in command arguments dispatching");
                 }
             }
-        } while(command.compareTo("exit") != 0);
+        } while (command.compareTo("exit") != 0);
     }
 
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
@@ -261,8 +264,7 @@ public class Client {
             } catch (IOException ex) {
                 printExeption(ex);
             }
-        }
-        else System.out.println("You're not logged in");
+        } else System.out.println("You're not logged in");
     }
 
     private void login(String username, String password) {
@@ -274,9 +276,9 @@ public class Client {
     private void logout() {
         if (isLogged()) {
             authenticationToken = null;
+            notificationQueue.clear();
             Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
-        }
-        else System.out.println("You're not logged in");
+        } else System.out.println("You're not logged in");
     }
 
     private void editEnd() {
@@ -290,8 +292,7 @@ public class Client {
                     ex.printStackTrace();
                 }
             }, System.err::println, Commands.EDIT_END);
-        }
-        else System.out.println("You're not logged in");
+        } else System.out.println("You're not logged in");
     }
 
     private void create(String docName, int secNumber) {
@@ -306,7 +307,7 @@ public class Client {
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
                 Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, editor -> {
-                    if(editor.compareTo("None") != 0)
+                    if (editor.compareTo("None") != 0)
                         System.out.println(String.format("%s is editing the section right now", editor));
                     else System.out.println("None is editing this section");
                 }, fileStream, System.err::println, Commands.SHOW_SECTION, docName, secNumber);
@@ -317,7 +318,7 @@ public class Client {
     }
 
     private void documentsList() {
-        if(isLogged())
+        if (isLogged())
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
         else System.out.println("You're not logged in");
     }
@@ -330,37 +331,48 @@ public class Client {
         if (isLogged()) {
             String filename = DATA_DIR + (outputName == null ? docName : outputName);
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-                OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                    Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
-                    if(onEditingSections.compareTo("None") != 0)
+                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
+                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
+                    if (onEditingSections.compareTo("None") != 0)
                         System.out.println(String.format("These are the on editing sections: %s", onEditingSections));
                     else System.out.println("None is editing this document");
                 }, fileStream, System.err::println, Commands.SHOW_DOCUMENT, docName);
             } catch (IOException ex) {
                 printExeption(ex);
             }
-        }
-        else System.out.println("You're not logged in");
+        } else System.out.println("You're not logged in");
     }
 
     private void printExeption(Exception ex) {
         System.err.println(ex.getMessage());
     }
 
+    private void printNews() {
+        if (isLogged()) {
+            synchronized (notificationQueue) {
+                if (!notificationQueue.isEmpty()) {
+                    System.out.println("You have permission on these new documents: " + String.join(",", notificationQueue));
+                    notificationQueue.clear();
+                } else System.out.println("No news available");
+            }
+        } else System.out.println("You're not logged in");
+    }
+
     private void printCommandsHelp() {
         String message =
                 "The following commands are available:\n" +
-                "  help: to show this help message\n" +
-                "  register USER PASS: to register a new account with username USER and password PASS\n" +
-                "  login USER PASS: to login using USER and PASS credentials\n"+
-                "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
-                "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
-                "  stopedit: to stop the current editing session\n" +
-                "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
-                "  showdoc DOC (OUT): to download the content concatenation of all the document's sections (using OUT output filename)\n" +
-                "  logout: to logout\n" +
-                "  list: to list all the documents you are able to see and edit" +
-                "  share USER DOC: to share a document with someone";
+                        "  help: to show this help message\n" +
+                        "  register USER PASS: to register a new account with username USER and password PASS\n" +
+                        "  login USER PASS: to login using USER and PASS credentials\n" +
+                        "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
+                        "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
+                        "  stopedit: to stop the current editing session\n" +
+                        "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
+                        "  showdoc DOC (OUT): to download the content concatenation of all the document's sections (using OUT output filename)\n" +
+                        "  logout: to logout\n" +
+                        "  list: to list all the documents you are able to see and edit\n" +
+                        "  share USER DOC: to share a document with someone\n" +
+                        "  news: to get all the news\n";
         System.out.println(message);
     }
 }
