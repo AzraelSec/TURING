@@ -39,7 +39,7 @@ public class Client {
     private DataInputStream clientInputStream;
     private String onEditingFilename = null;
     private NotificationClientThread notificationThread;
-    private ArrayList<String> notificationQueue;
+    private final ArrayList<String> notificationQueue;
 
     public Client() {
         authenticationToken = null;
@@ -198,7 +198,7 @@ public class Client {
                             } else throw new CommandDispatchingException();
                             break;
                         case "stopedit":
-                            this.editEnd();
+                            editEnd();
                             break;
                         case "showsec":
                             if (args.length > 2) {
