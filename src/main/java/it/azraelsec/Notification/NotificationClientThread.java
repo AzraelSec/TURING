@@ -1,6 +1,5 @@
 package it.azraelsec.Notification;
 
-import it.azraelsec.Client.Client;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
 import it.azraelsec.Protocol.Execution;
