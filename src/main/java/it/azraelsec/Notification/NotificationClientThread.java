@@ -5,7 +5,6 @@ import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
 import it.azraelsec.Protocol.Execution;
 import it.azraelsec.Protocol.Result;
-import it.azraelsec.Server.User;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -23,8 +22,10 @@ public class NotificationClientThread extends Thread {
     private final List<String> localNotificationQueue;
     private final HashMap<Commands, Execution> handlers;
     private boolean closing;
+    private int servingPort;
 
     public NotificationClientThread(List<String> localNotificationQueue) {
+        servingPort = 0;
         handlers = new HashMap<>();
         handlers.put(Commands.NEW_NOTIFICATIONS, this::onNews);
         handlers.put(Commands.EXIT, this::onClosing);
@@ -42,7 +43,8 @@ public class NotificationClientThread extends Thread {
             ServerSocket socket;
             socketChannel = ServerSocketChannel.open();
             socket = socketChannel.socket();
-            socket.bind(new InetSocketAddress(Client.NOTIFICATION_PORT));
+            socket.bind(new InetSocketAddress(servingPort));
+            servingPort = socket.getLocalPort();
             socketChannel.configureBlocking(false);
             selector = Selector.open();
             socketChannel.register(selector, SelectionKey.OP_ACCEPT);
@@ -96,5 +98,9 @@ public class NotificationClientThread extends Thread {
     private void onClosing(Object[] args, Result sendback) {
         closing = true;
         sendback.send(Commands.SUCCESS, "Notification server is closing");
+    }
+
+    public int getNotificationLocalPort() {
+        return servingPort;
     }
 }

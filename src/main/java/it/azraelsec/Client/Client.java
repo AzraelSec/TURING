@@ -27,7 +27,6 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Client {
-    public static int NOTIFICATION_PORT = 1338;
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
@@ -170,7 +169,7 @@ public class Client {
                             if (args.length > 2) {
                                 String username = args[1];
                                 String password = args[2];
-                                login(username, password);
+                                login(username, password, notificationThread.getNotificationLocalPort());
                             } else throw new CommandDispatchingException();
                             break;
                         case "create":
@@ -267,9 +266,9 @@ public class Client {
         } else System.out.println("You're not logged in");
     }
 
-    private void login(String username, String password) {
+    private void login(String username, String password, int notificationPort) {
         if (!isLogged())
-            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, username, password);
+            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, username, password, notificationPort);
         else System.out.println("You're already logged in");
     }
 

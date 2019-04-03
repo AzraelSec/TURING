@@ -64,7 +64,7 @@ public class TCPRequestHandler implements Runnable {
             if ((user = usersDB.doLogin((String) args[0], (String) args[1])) != null) {
                 String token;
                 if ((token = onlineUsersDB.login(user)) != null) {
-                    notificationThread = new NotificationServerThread(user, socket.getInetAddress().getHostName(), Client.NOTIFICATION_PORT);
+                    notificationThread = new NotificationServerThread(user, socket.getInetAddress().getHostName(), (Integer)args[2]);
                     notificationThread.start();
                     sessionToken = token;
                     System.out.println("New user logged in: " + args[0]);

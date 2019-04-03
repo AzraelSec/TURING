@@ -9,7 +9,7 @@ public class Communication {
     private static final int SEGMENT_SIZE = 10;
     private static Map<Commands, Class<?>[]> commandsArgsType = new HashMap<>();
     static {
-        commandsArgsType.put(Commands.LOGIN, new Class<?>[] {String.class, String.class});
+        commandsArgsType.put(Commands.LOGIN, new Class<?>[] {String.class, String.class, Integer.class});
         commandsArgsType.put(Commands.LOGOUT, new Class<?>[] {});
         commandsArgsType.put(Commands.FAILURE, new Class<?>[] {String.class});
         commandsArgsType.put(Commands.SUCCESS, new Class<?>[] {String.class});
