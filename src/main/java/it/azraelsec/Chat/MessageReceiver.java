@@ -32,7 +32,7 @@ public class MessageReceiver extends Thread {
         try {
             Selector selector = Selector.open();
             channel = DatagramChannel.open(StandardProtocolFamily.INET);
-            interf = NetworkInterface.getByInetAddress(Inet4Address.getByName("localhost"));
+            interf = NetworkInterface.getByInetAddress(InetAddress.getByName("localhost"));
             channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, interf);
             channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             channel.bind(new InetSocketAddress(Client.UDP_PORT));

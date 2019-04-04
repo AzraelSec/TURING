@@ -154,10 +154,11 @@ public class Client {
 
     private void edit(String docName, int secNumber, String chosenFilename) {
         if (session != null) {
-            session.setOnEdit(chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber);
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+            String filepath = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(filepath), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
                 Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, address -> {
+                    session.setOnEdit(filepath);
                     long dAddress = Long.parseLong(address);
                     try {
                         messageReceiver.setNewGroup(dAddress);
