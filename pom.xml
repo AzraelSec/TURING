@@ -70,26 +70,16 @@
               <finalName>TURING-Server</finalName>
             </configuration>
           </execution>
-          <!--
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>-->
         </executions>
-        <!--
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-          <manifest>
-            <addClasspath>true</addClasspath>
-            <mainClass>it.azraelsec.Client.Client</mainClass>
-          </manifest>
-        </archive>
-        </configuration>
-        -->
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
