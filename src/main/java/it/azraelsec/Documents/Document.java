@@ -4,19 +4,16 @@ import it.azraelsec.Server.User;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Vector;
 
 public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
     private String documentName;
-    private String path;
     private ArrayList<Section> sections;
     private User owner;
     private ArrayList<User> modifiers;
 
-    private Document(String directory, ArrayList<Section> sections, String name, User owner){
-        this.path = directory + "/" + name;
+    private Document(ArrayList<Section> sections, String name, User owner){
         documentName = name;
         this.sections = sections;
         this.owner = owner;
@@ -40,7 +37,7 @@ public class Document implements Serializable {
             File sectionFile = new File(sec.getFilePath());
             sectionFile.createNewFile();
         }
-        return new Document(directory, sections, name, owner);
+        return new Document(sections, name, owner);
     }
 
     public Section getSection(int index) {

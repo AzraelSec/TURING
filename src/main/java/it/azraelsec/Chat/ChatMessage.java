@@ -32,4 +32,9 @@ public class ChatMessage implements Serializable {
     public long getTime() {
         return time;
     }
+
+    @Override
+    public String toString() {
+        return "[" + sender +"] - " + message;
+    }
 }

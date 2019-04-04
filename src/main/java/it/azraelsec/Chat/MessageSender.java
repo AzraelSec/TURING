@@ -14,7 +14,7 @@ public class MessageSender {
         buffer = ByteBuffer.allocate(2048);
     }
 
-    public MessageSender create() {
+    public static MessageSender create() {
         try {
             DatagramChannel channel = DatagramChannel.open();
             return new MessageSender(channel);
@@ -33,5 +33,6 @@ public class MessageSender {
         buffer.flip();
         while (buffer.hasRemaining())
             channel.send(buffer, group);
+
     }
 }

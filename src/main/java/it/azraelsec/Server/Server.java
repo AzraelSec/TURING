@@ -1,5 +1,6 @@
 package it.azraelsec.Server;
 
+import it.azraelsec.Chat.CDAManager;
 import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -30,11 +31,13 @@ public class Server {
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
     private final DocumentsDatabase documentDatabase;
+    private final CDAManager cdaManager;
 
     public Server() {
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
         documentDatabase = new DocumentsDatabase();
+        cdaManager = new CDAManager();
     }
 
     public static String getDataDirectoryPath() {
@@ -60,7 +63,7 @@ public class Server {
             while(true) {
                 Socket socket = TCPServer.accept();
                 System.out.println("New TCP command connection enstablished");
-                TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, documentDatabase, socket));
+                TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, documentDatabase, cdaManager, socket));
             }
         }
         catch (IOException ex) {

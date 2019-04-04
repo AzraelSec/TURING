@@ -1,5 +1,6 @@
 package it.azraelsec.Server;
 
+import it.azraelsec.Chat.CDAManager;
 import it.azraelsec.Client.Client;
 import it.azraelsec.Documents.Document;
 import it.azraelsec.Documents.DocumentsDatabase;
@@ -19,11 +20,13 @@ import java.util.Map;
 import java.util.Objects;
 
 public class TCPRequestHandler implements Runnable {
+    private CDAManager cdaManager;
     private OnlineUsersDB onlineUsersDB;
     private UsersDB usersDB;
     private DocumentsDatabase documentDatabase;
     private String sessionToken;
     private Section editingSection;
+    private Document editingDocument;
     private Map<Commands, Execution> handlers;
 
     private Socket socket;
@@ -32,7 +35,8 @@ public class TCPRequestHandler implements Runnable {
 
     private NotificationServerThread notificationThread;
 
-    public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, Socket socket) throws IOException {
+    public TCPRequestHandler(OnlineUsersDB onlineUsersDB, UsersDB usersDB, DocumentsDatabase documentDatabase, CDAManager cdaManager, Socket socket) throws IOException {
+        this.cdaManager = cdaManager;
         this.onlineUsersDB = onlineUsersDB;
         this.usersDB = usersDB;
         this.socket = socket;
@@ -51,6 +55,7 @@ public class TCPRequestHandler implements Runnable {
         handlers.put(Commands.SHARE, this::onShare);
         sessionToken = null;
         editingSection = null;
+        editingDocument = null;
     }
 
     @Override
@@ -97,19 +102,23 @@ public class TCPRequestHandler implements Runnable {
                             Section section;
                             if ((section = doc.getSection(sectionNumber)) != null) {
                                 if (section.tryToSetEditing(user)) {
-                                    try {
-                                        InputStream fileStream = section.getFileInputStream();
-                                        sendback.send(Commands.SUCCESS, "You're editing");
+                                    Long multicastAddr = cdaManager.getChatAddress(doc);
+                                    if (multicastAddr > 0) {
                                         try {
-                                            Communication.receiveAndSendStream(socketInputStream, socketOutputStream, fileStream);
-                                            editingSection = section;
+                                            InputStream fileStream = section.getFileInputStream();
+                                            sendback.send(Commands.SUCCESS, String.valueOf(multicastAddr));
+                                            try {
+                                                Communication.receiveAndSendStream(socketInputStream, socketOutputStream, fileStream);
+                                                editingSection = section;
+                                                editingDocument = doc;
+                                            } catch (IOException ex) {
+                                                sendback.send(Commands.FAILURE, ex.getMessage());
+                                                fileStream.close();
+                                            }
                                         } catch (IOException ex) {
-                                            sendback.send(Commands.FAILURE, ex.getMessage());
-                                            fileStream.close();
+                                            sendback.send(Commands.FAILURE, "Section's reading error: " + ex.getMessage());
                                         }
-                                    } catch (IOException ex) {
-                                        sendback.send(Commands.FAILURE, "Section's reading error: " + ex.getMessage());
-                                    }
+                                    } else sendback.send(Commands.FAILURE, "No multicast address available");
                                 } else sendback.send(Commands.FAILURE, "Someone's already editing this file");
                             } else sendback.send(Commands.FAILURE, "Section's not found");
                         } else sendback.send(Commands.FAILURE, "You can modify one section at time");
@@ -128,7 +137,9 @@ public class TCPRequestHandler implements Runnable {
                     sendback.send(Commands.SUCCESS, "Send me new version");
                     fileStream = editingSection.getWriteStream();
                     Communication.readFileFromSocket(socketInputStream, fileStream);
+                    cdaManager.checkRemove(editingDocument);
                     editingSection = null;
+                    editingDocument = null;
                 } catch (IOException ex) {
                     sendback.send(Commands.FAILURE, ex.getMessage());
                     if (fileStream != null)

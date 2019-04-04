@@ -1,5 +1,9 @@
 package it.azraelsec.Client;
 
+import it.azraelsec.Chat.CDAManager;
+import it.azraelsec.Chat.ChatMessage;
+import it.azraelsec.Chat.MessageReceiver;
+import it.azraelsec.Chat.MessageSender;
 import it.azraelsec.Notification.NotificationClientThread;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
@@ -22,9 +26,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+
+import static java.lang.Long.getLong;
 
 public class Client {
     private static int TCP_PORT = 1337;
@@ -39,11 +46,14 @@ public class Client {
     private String onEditingFilename = null;
     private NotificationClientThread notificationThread;
     private final ArrayList<String> notificationQueue;
+    private final MessageReceiver messageReceiver;
+    private MessageSender messageSender;
 
     public Client() {
         authenticationToken = null;
         notificationQueue = new ArrayList<>();
         notificationThread = new NotificationClientThread(notificationQueue);
+        messageReceiver = new MessageReceiver();
     }
 
     private boolean isLogged() {
@@ -70,6 +80,9 @@ public class Client {
         clientSocket.connect(new InetSocketAddress(SERVER_ADDRESS, TCP_PORT));
         clientOutputStream = new DataOutputStream(clientSocket.getOutputStream());
         clientInputStream = new DataInputStream(clientSocket.getInputStream());
+        messageReceiver.start();
+        messageSender = MessageSender.create();
+        if(messageSender == null) throw new IOException(); //todo: improve
     }
 
     private void loadConfig(String filePath) {
@@ -103,6 +116,8 @@ public class Client {
      * */
 
     public static void main(String[] args) {
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+
         ArgumentParser argpars = ArgumentParsers.newFor("TURING Client")
                 .build()
                 .defaultHelp(true)
@@ -130,6 +145,7 @@ public class Client {
             client.connect();
             client.commandDispatchingLoop();
             client.notificationThread.interrupt();
+            client.messageReceiver.interrupt();
         } catch (IOException | NotBoundException ex) {
             client.printExeption(ex);
         } finally {
@@ -236,6 +252,15 @@ public class Client {
                         case "news":
                             printNews();
                             break;
+                        case "receive":
+                            showMessages();
+                            break;
+                        case "send":
+                            if(args.length > 1){
+                                String text = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
+                                sendMessage(text);
+                            }
+                            break;
                         case "help":
                             printCommandsHelp();
                             break;
@@ -259,7 +284,14 @@ public class Client {
             onEditingFilename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
             try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, System.out::println, fileStream, System.err::println, Commands.EDIT, docName, secNumber);
+                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, address -> {
+                    long dAddress = Long.parseLong(address);
+                    try {
+                        messageReceiver.setNewGroup(dAddress);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }, fileStream, System.err::println, Commands.EDIT, docName, secNumber);
             } catch (IOException ex) {
                 printExeption(ex);
             }
@@ -282,15 +314,18 @@ public class Client {
 
     private void editEnd() {
         if (isLogged()) {
-            Communication.send(clientOutputStream, clientInputStream, s -> {
-                try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.READ);
-                     InputStream stream = Channels.newInputStream(fileChannel)) {
-                    Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
-                    onEditingFilename = null;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }, System.err::println, Commands.EDIT_END);
+            if (onEditingFilename != null) {
+                Communication.send(clientOutputStream, clientInputStream, s -> {
+                    try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.READ);
+                         InputStream stream = Channels.newInputStream(fileChannel)) {
+                        Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
+                        onEditingFilename = null;
+                        messageReceiver.setNewGroup(0L);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }, System.err::println, Commands.EDIT_END);
+            } else System.out.println("You're not editing any section");
         } else System.out.println("You're not logged in");
     }
 
@@ -357,6 +392,34 @@ public class Client {
         } else System.out.println("You're not logged in");
     }
 
+    private void showMessages() {
+        if(isLogged()) {
+            if(onEditingFilename != null) {
+                ChatMessage[] unreadMessages = messageReceiver.getMessages();
+                for(ChatMessage message : unreadMessages)
+                    System.out.println(message);
+            } else System.out.println("You're not editing any document");
+        } else System.out.println("You're not logged in");
+    }
+
+    private void sendMessage(String text) {
+        if(isLogged()) {
+            if(onEditingFilename != null) {
+                long activeGroup;
+                if((activeGroup = messageReceiver.getActiveGroup()) > 0L) {
+                    try {
+                        ChatMessage message = new ChatMessage(authenticationToken, text);
+                        InetAddress multicast = CDAManager.decimalToAddress(activeGroup);
+                        InetSocketAddress groupAddress = new InetSocketAddress(multicast, MessageReceiver.CHAT_PORT);
+                        messageSender.sendMessage(message, groupAddress);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } else System.out.println("Generic message sending error");
+            } else System.out.println("You're not editing any document");
+        } else System.out.println("You're not logged in");
+    }
+
     private void printCommandsHelp() {
         String message =
                 "The following commands are available:\n" +
@@ -371,7 +434,9 @@ public class Client {
                         "  logout: to logout\n" +
                         "  list: to list all the documents you are able to see and edit\n" +
                         "  share USER DOC: to share a document with someone\n" +
-                        "  news: to get all the news\n";
+                        "  news: to get all the news\n" +
+                        "  receive: to get all the unread chat messages\n" +
+                        "  send TEXT: to send the TEXT message into the document chat";
         System.out.println(message);
     }
 }

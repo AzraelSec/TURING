@@ -14,31 +14,30 @@ import java.util.List;
 public class MessageReceiver extends Thread {
     public static final int CHAT_PORT = 1338;
     private final List<ChatMessage> messageQueue;
-    private byte[] activeGroup;
-    private MulticastSocket socket;
-    private boolean closing;
+    private long activeGroup;
+    private DatagramChannel channel;
+    private NetworkInterface interf;
 
     public MessageReceiver() {
         messageQueue = new ArrayList<>();
-        activeGroup = null;
-        socket = null;
-        closing = false;
+        activeGroup = 0L;
+        channel = null;
+        interf = null;
     }
 
     @Override
     public void run() {
-        System.setProperty("java.net.preferIPv4Stack", "true");
         try {
             Selector selector = Selector.open();
-            DatagramChannel channel = DatagramChannel.open();
-            NetworkInterface interf = NetworkInterface.getByName("127.0.0.1");
+            channel = DatagramChannel.open(StandardProtocolFamily.INET);
+            interf = NetworkInterface.getByInetAddress(Inet4Address.getByName("localhost"));
             channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, interf);
             channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             channel.bind(new InetSocketAddress(CHAT_PORT));
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
             ByteBuffer buffer = ByteBuffer.allocate(2048);
-            while (!closing) {
+            while (!Thread.currentThread().isInterrupted()) {
                 selector.select();
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
@@ -66,6 +65,13 @@ public class MessageReceiver extends Thread {
         } catch (IOException ex) {
             ex.printStackTrace(); //todo: remove
         }
+        finally {
+            if(channel != null)
+                try {
+                    channel.close();
+                } catch (IOException ignore) {
+                }
+        }
     }
 
     private String getString(ByteBuffer buffer) {
@@ -84,15 +90,25 @@ public class MessageReceiver extends Thread {
         return messages;
     }
 
-    public void setNewGroup(byte[] group) throws UnknownHostException, IOException {
-        if (socket != null) {
-            if (activeGroup != null)
-                socket.leaveGroup(InetAddress.getByAddress(activeGroup));
-            socket.joinGroup(InetAddress.getByAddress(group));
+    public void setNewGroup(long group) throws IOException, UnknownHostException {
+        if (channel != null) {
+            if (group > 0) {
+                byte[] rawAddress = CDAManager.decimalToAddress(group).getAddress();
+                //todo: attention
+                /*if (activeGroup > 0L) {
+                    channel.leaveGroup(CDAManager.decimalToAddress(activeGroup));
+                }*/
+                channel.join(InetAddress.getByAddress(rawAddress), interf);
+                activeGroup = group;
+            }
+            else {
+                //socket.leaveGroup(CDAManager.decimalToAddress(activeGroup));
+                activeGroup = 0L;
+            }
         }
     }
 
-    public void shutdown() {
-        closing = true;
+    public long getActiveGroup() {
+        return activeGroup;
     }
 }
