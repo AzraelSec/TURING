@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class Client {
     private static int TCP_PORT = 1337;
-    private static int UDP_PORT = 1338;
+    public static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
     private static String SERVER_ADDRESS = "127.0.0.1";
     private static String DATA_DIR = "./client_data/";
@@ -192,7 +192,7 @@ public class Client {
 
     private void editEnd() {
         if (session != null) {
-            if (!session.isEditing()) {
+            if (session.isEditing()) {
                 Communication.send(clientOutputStream, clientInputStream, s -> {
                     try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.READ);
                          InputStream stream = Channels.newInputStream(fileChannel)) {
@@ -282,7 +282,7 @@ public class Client {
                 if((multicastAddress = messageReceiver.getActiveGroup()) != null) {
                     try {
                         ChatMessage message = new ChatMessage(session.getUsername(), text);
-                        InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, MessageReceiver.CHAT_PORT);
+                        InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, UDP_PORT);
                         messageSender.sendMessage(message, groupAddress);
                     } catch (IOException ex) {
                         printException(ex);

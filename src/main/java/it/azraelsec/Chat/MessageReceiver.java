@@ -1,5 +1,7 @@
 package it.azraelsec.Chat;
 
+import it.azraelsec.Client.Client;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.BufferUnderflowException;
@@ -13,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MessageReceiver extends Thread {
-    public static final int CHAT_PORT = 1338;
     private final List<ChatMessage> messageQueue;
     private MembershipKey activeGroup;
     private DatagramChannel channel;
@@ -34,7 +35,7 @@ public class MessageReceiver extends Thread {
             interf = NetworkInterface.getByInetAddress(Inet4Address.getByName("localhost"));
             channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, interf);
             channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-            channel.bind(new InetSocketAddress(CHAT_PORT));
+            channel.bind(new InetSocketAddress(Client.UDP_PORT));
             channel.configureBlocking(false);
             channel.register(selector, SelectionKey.OP_READ);
             ByteBuffer buffer = ByteBuffer.allocate(2048);

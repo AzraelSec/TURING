@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class Server {
     private static int TCP_PORT = 1337;
-    private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
     private static String DATA_DIR = "./server_data/";
 
@@ -49,14 +48,13 @@ public class Server {
     private void bootstrap(Namespace cmdOptions) throws RemoteException {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
-        UDP_PORT = Optional.ofNullable( cmdOptions.getInt("udp_port") ).orElseGet( () -> UDP_PORT );
         RMI_PORT = Optional.ofNullable( cmdOptions.getInt("rmi_port") ).orElseGet( () -> RMI_PORT );
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         checkDataDirectory();
         usersDB = initUsersDB();
         documentDatabase = initDocumentsDB();
         RMIInit();
-        System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
+        System.out.println(String.format("TCP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, RMI_PORT, DATA_DIR));
     }
     private void serve() {
         try(ServerSocket TCPServer = new ServerSocket()) {
@@ -137,7 +135,6 @@ public class Server {
                 JSONObject configs = new JSONObject(Files.lines(new File(filePath).toPath()).collect(Collectors.joining("\n")));
                 
                 TCP_PORT = configs.has("TCP_PORT") ? configs.getInt("TCP_PORT") : TCP_PORT;
-                UDP_PORT = configs.has("UDP_PORT") ? configs.getInt("UDP_PORT") : UDP_PORT;
                 RMI_PORT = configs.has("RMI_PORT") ? configs.getInt("RMI_PORT") : RMI_PORT;
                 DATA_DIR = configs.has("DATA_DIR") ? configs.getString("DATA_DIR") : DATA_DIR;
             }
