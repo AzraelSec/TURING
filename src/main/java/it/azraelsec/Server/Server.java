@@ -1,6 +1,7 @@
 package it.azraelsec.Server;
 
 import it.azraelsec.Chat.CDAManager;
+import it.azraelsec.Documents.Document;
 import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -24,19 +25,20 @@ public class Server {
     private static int TCP_PORT = 1337;
     private static int UDP_PORT = 1338;
     private static int RMI_PORT = 3400;
-    private static String DATA_DIR = "./data/";
+    private static String DATA_DIR = "./server_data/";
 
 
     private UsersDB usersDB;
+    private DocumentsDatabase documentDatabase;
     private final OnlineUsersDB onlineUsersDB;
     private final ExecutorService TCPConnectionDispatcher;
-    private final DocumentsDatabase documentDatabase;
     private final CDAManager cdaManager;
 
     public Server() {
+        usersDB = null;
+        documentDatabase = null;
         TCPConnectionDispatcher = Executors.newCachedThreadPool();
         onlineUsersDB = new OnlineUsersDB();
-        documentDatabase = new DocumentsDatabase();
         cdaManager = new CDAManager();
     }
 
@@ -52,6 +54,7 @@ public class Server {
         DATA_DIR = Optional.ofNullable( cmdOptions.getString("data_dir") ).orElseGet( () -> DATA_DIR );
         checkDataDirectory();
         usersDB = initUsersDB();
+        documentDatabase = initDocumentsDB();
         RMIInit();
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, UDP_PORT, RMI_PORT, DATA_DIR));
     }
@@ -73,6 +76,7 @@ public class Server {
             System.out.println("TURING it.azraelsec.Server is shutting down...");
             TCPConnectionDispatcher.shutdown();
             storeUsersDB();
+            storeDocumentsDB();
         }
     }
     private boolean storeUsersDB() {
@@ -84,6 +88,7 @@ public class Server {
             return false;
         }
     }
+
     private UsersDB loadUsersDB() {
         try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DATA_DIR + "db.dat"))) {
             return (UsersDB) input.readObject();
@@ -92,6 +97,29 @@ public class Server {
             return null;
         }
     }
+
+    private boolean storeDocumentsDB() {
+        try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(DATA_DIR + "docs.dat"))) {
+            output.writeObject(documentDatabase);
+            return true;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
+    private DocumentsDatabase loadDocumentsDB() {
+        try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DATA_DIR + "docs.dat"))) {
+            return (DocumentsDatabase) input.readObject();
+        } catch (IOException | ClassNotFoundException ex) {
+            return null;
+        }
+    }
+
+    private DocumentsDatabase initDocumentsDB() {
+        DocumentsDatabase loadedDocumentsDB = loadDocumentsDB();
+        return loadedDocumentsDB == null ? new DocumentsDatabase() : loadedDocumentsDB;
+    }
+
     private UsersDB initUsersDB() {
         UsersDB loadedUsersDB = loadUsersDB();
         return loadedUsersDB == null ? new UsersDB() : loadedUsersDB;

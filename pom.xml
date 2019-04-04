@@ -33,10 +33,51 @@
           <execution>
             <phase>package</phase>
             <goals>
+                <goal>single</goal>
+            </goals>
+            <id>client-build</id>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>it.azraelsec.Client.Client</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>TURING-Client</finalName>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>package</phase>
+            <goals>
               <goal>single</goal>
             </goals>
+            <id>server-build</id>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>it.azraelsec.Server.Server</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>TURING-Server</finalName>
+            </configuration>
           </execution>
+          <!--
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>-->
         </executions>
+        <!--
         <configuration>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -48,6 +89,7 @@
           </manifest>
         </archive>
         </configuration>
+        -->
       </plugin>
     </plugins>
   </build>

@@ -104,7 +104,6 @@ public class Client {
 
     public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack" , "true");
-
         ArgumentParser argpars = ArgumentParsers.newFor("TURING Client")
                 .build()
                 .defaultHelp(true)
@@ -131,12 +130,12 @@ public class Client {
         try {
             client.connect();
             client.commandDispatchingLoop();
-            client.notificationThread.interrupt();
-            client.messageReceiver.interrupt();
         } catch (IOException | NotBoundException ex) {
-            client.printExeption(ex);
+            client.printException(ex);
         } finally {
             try {
+                client.notificationThread.interrupt();
+                client.messageReceiver.interrupt();
                 client.clientSocket.close();
                 client.clientInputStream.close();
                 client.clientOutputStream.close();
@@ -145,6 +144,177 @@ public class Client {
         }
     }
 
+
+    private boolean register(String username, String password) throws RemoteException, NotBoundException {
+        RemoteRegistration registrationService;
+        Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, RMI_PORT);
+        registrationService = (RemoteRegistration) registry.lookup(RemoteRegistration.NAME);
+        return registrationService.register(username, password);
+    }
+
+    private void edit(String docName, int secNumber, String chosenFilename) {
+        if (session != null) {
+            session.setOnEdit(chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber);
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
+                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, address -> {
+                    long dAddress = Long.parseLong(address);
+                    try {
+                        messageReceiver.setNewGroup(dAddress);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }, fileStream, System.err::println, Commands.EDIT, docName, secNumber);
+            } catch (IOException ex) {
+                printException(ex);
+            }
+        } else System.err.println("You're not logged in");
+    }
+
+    private void login(String username, String password, int notificationPort) {
+        if (session == null)
+            Communication.send(clientOutputStream, clientInputStream, token -> {
+                session = new LocalSession(token, username);
+                System.out.println("Correctly logged in as " + username);
+            }, System.err::println, Commands.LOGIN, username, password, notificationPort);
+        else System.err.println("You're already logged in");
+    }
+
+    private void logout() {
+        if (session != null) {
+            if(!session.isEditing()) {
+                session = null;
+                notificationThread.clearNotificationList();
+                Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
+            } else System.err.println("You should 'stopedit' before logging out");
+        } else System.err.println("You're not logged in");
+    }
+
+    private void editEnd() {
+        if (session != null) {
+            if (!session.isEditing()) {
+                Communication.send(clientOutputStream, clientInputStream, s -> {
+                    try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.READ);
+                         InputStream stream = Channels.newInputStream(fileChannel)) {
+                        Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
+                        session.setOnEdit(null);
+                        messageReceiver.setNewGroup(0L);
+                    } catch (IOException ex) {
+                        printException(ex);
+                    }
+                }, System.err::println, Commands.EDIT_END);
+            } else System.err.println("You're not editing any section");
+        } else System.err.println("You're not logged in");
+    }
+
+    private void create(String docName, int secNumber) {
+        if (session != null)
+            Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.CREATE, docName, secNumber);
+        else System.err.println("You're not logged in");
+    }
+
+    private void showSection(String docName, int secNumber, String chosenFilename) {
+        if (session != null) {
+            String filename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
+                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, editor -> {
+                    if (editor.compareTo("None") != 0)
+                        System.out.println(String.format("%s is editing the section right now", editor));
+                    else System.out.println("None is editing this section");
+                }, fileStream, System.err::println, Commands.SHOW_SECTION, docName, secNumber);
+            } catch (IOException ex) {
+                printException(ex);
+            }
+        } else System.err.println("You're not logged in");
+    }
+
+    private void documentsList() {
+        if (session != null)
+            Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
+        else System.err.println("You're not logged in");
+    }
+
+    private void share(String user, String docName) {
+        Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.SHARE, user, docName);
+    }
+
+    private void showDocument(String docName, String outputName) {
+        if (session != null) {
+            String filename = DATA_DIR + (outputName == null ? docName : outputName);
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
+                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
+                    if (onEditingSections.compareTo("None") != 0)
+                        System.out.println(String.format("These are the on editing sections: %s", onEditingSections));
+                    else System.out.println("None is editing this document");
+                }, fileStream, System.err::println, Commands.SHOW_DOCUMENT, docName);
+            } catch (IOException ex) {
+                printException(ex);
+            }
+        } else System.err.println("You're not logged in");
+    }
+
+
+    private void printNews() {
+        if (session != null) {
+            List<String> notifications = notificationThread.getAllNotifications();
+            if (!notifications.isEmpty())
+                System.out.println("You have permission on these new documents: " + String.join(",", notifications));
+            else System.err.println("No news available");
+        } else System.err.println("You're not logged in");
+    }
+
+    private void showMessages() {
+        if(session != null) {
+            if(session.isEditing()) {
+                ChatMessage[] unreadMessages = messageReceiver.getMessages();
+                for(ChatMessage message : unreadMessages)
+                    System.out.println(message);
+            } else System.err.println("You're not editing any document");
+        } else System.err.println("You're not logged in");
+    }
+
+    private void sendMessage(String text) {
+        if(session != null) {
+            if(session.isEditing()) {
+                InetAddress multicastAddress;
+                if((multicastAddress = messageReceiver.getActiveGroup()) != null) {
+                    try {
+                        ChatMessage message = new ChatMessage(session.getUsername(), text);
+                        InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, MessageReceiver.CHAT_PORT);
+                        messageSender.sendMessage(message, groupAddress);
+                    } catch (IOException ex) {
+                        printException(ex);
+                    }
+                } else System.err.println("Generic message sending error");
+            } else System.err.println("You're not editing any document");
+        } else System.err.println("You're not logged in");
+    }
+
+    private void printException(Exception ex) {
+        System.err.println(ex.getMessage());
+    }
+
+    private void printCommandsHelp() {
+        String message =
+                "The following commands are available:\n" +
+                        "  help: to show this help message\n\n" +
+                        "  register USER PASS: to register a new account with username USER and password PASS\n" +
+                        "  login USER PASS: to login using USER and PASS credentials\n" +
+                        "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
+                        "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
+                        "  stopedit: to stop the current editing session\n" +
+                        "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
+                        "  showdoc DOC (OUT): to download the content concatenation of all the document's sections (using OUT output filename)\n" +
+                        "  logout: to logout\n" +
+                        "  list: to list all the documents you are able to see and edit\n" +
+                        "  share USER DOC: to share a document with someone\n" +
+                        "  news: to get all the news\n\n" +
+                        "  receive: to get all the unread chat messages\n" +
+                        "  send TEXT: to send the TEXT message into the document chat";
+        System.out.println(message);
+    }
     private void commandDispatchingLoop() throws NotBoundException, IOException {
         String command = null;
         Scanner input = new Scanner(System.in);
@@ -250,183 +420,16 @@ public class Client {
                             if(args.length > 1){
                                 String text = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                                 sendMessage(text);
-                            }
+                            } else throw new CommandDispatchingException();
                             break;
                         case "help":
                             printCommandsHelp();
                             break;
                     }
                 } catch (CommandDispatchingException ex) {
-                    System.out.println("Error in command arguments dispatching");
+                    System.err.println("Error in command arguments dispatching");
                 }
             }
         } while (!dispatchingShutdown);
-    }
-
-    private boolean register(String username, String password) throws RemoteException, NotBoundException {
-        RemoteRegistration registrationService;
-        Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, RMI_PORT);
-        registrationService = (RemoteRegistration) registry.lookup(RemoteRegistration.NAME);
-        return registrationService.register(username, password);
-    }
-
-    private void edit(String docName, int secNumber, String chosenFilename) {
-        if (session != null) {
-            session.setOnEdit(chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber);
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, address -> {
-                    long dAddress = Long.parseLong(address);
-                    try {
-                        messageReceiver.setNewGroup(dAddress);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }, fileStream, System.err::println, Commands.EDIT, docName, secNumber);
-            } catch (IOException ex) {
-                printExeption(ex);
-            }
-        } else System.out.println("You're not logged in");
-    }
-
-    private void login(String username, String password, int notificationPort) {
-        if (session == null)
-            Communication.send(clientOutputStream, clientInputStream, token -> session = new LocalSession(token), System.err::println, Commands.LOGIN, username, password, notificationPort);
-        else System.out.println("You're already logged in");
-    }
-
-    private void logout() {
-        if (session != null) {
-            if(!session.isEditing()) {
-                session = null;
-                notificationThread.clearNotificationList();
-                Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
-            } else System.out.println("You should 'stopedit' before logging out");
-        } else System.out.println("You're not logged in");
-    }
-
-    private void editEnd() {
-        if (session != null) {
-            if (!session.isEditing()) {
-                Communication.send(clientOutputStream, clientInputStream, s -> {
-                    try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.READ);
-                         InputStream stream = Channels.newInputStream(fileChannel)) {
-                        Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
-                        session.setOnEdit(null);
-                        messageReceiver.setNewGroup(0L);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }, System.err::println, Commands.EDIT_END);
-            } else System.out.println("You're not editing any section");
-        } else System.out.println("You're not logged in");
-    }
-
-    private void create(String docName, int secNumber) {
-        if (session != null)
-            Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.CREATE, docName, secNumber);
-        else System.out.println("You're not logged in");
-    }
-
-    private void showSection(String docName, int secNumber, String chosenFilename) {
-        if (session != null) {
-            String filename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, editor -> {
-                    if (editor.compareTo("None") != 0)
-                        System.out.println(String.format("%s is editing the section right now", editor));
-                    else System.out.println("None is editing this section");
-                }, fileStream, System.err::println, Commands.SHOW_SECTION, docName, secNumber);
-            } catch (IOException ex) {
-                printExeption(ex);
-            }
-        } else System.out.println("You're not logged in");
-    }
-
-    private void documentsList() {
-        if (session != null)
-            Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
-        else System.out.println("You're not logged in");
-    }
-
-    private void share(String user, String docName) {
-        Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.SHARE, user, docName);
-    }
-
-    private void showDocument(String docName, String outputName) {
-        if (session != null) {
-            String filename = DATA_DIR + (outputName == null ? docName : outputName);
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-                 OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
-                Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, onEditingSections -> {
-                    if (onEditingSections.compareTo("None") != 0)
-                        System.out.println(String.format("These are the on editing sections: %s", onEditingSections));
-                    else System.out.println("None is editing this document");
-                }, fileStream, System.err::println, Commands.SHOW_DOCUMENT, docName);
-            } catch (IOException ex) {
-                printExeption(ex);
-            }
-        } else System.out.println("You're not logged in");
-    }
-
-    private void printExeption(Exception ex) {
-        System.err.println(ex.getMessage());
-    }
-
-    private void printNews() {
-        if (session != null) {
-            List<String> notifications = notificationThread.getAllNotifications();
-            if (!notifications.isEmpty())
-                System.out.println("You have permission on these new documents: " + String.join(",", notifications));
-            else System.out.println("No news available");
-        } else System.out.println("You're not logged in");
-    }
-
-    private void showMessages() {
-        if(session != null) {
-            if(session.isEditing()) {
-                ChatMessage[] unreadMessages = messageReceiver.getMessages();
-                for(ChatMessage message : unreadMessages)
-                    System.out.println(message);
-            } else System.out.println("You're not editing any document");
-        } else System.out.println("You're not logged in");
-    }
-
-    private void sendMessage(String text) {
-        if(session != null) {
-            if(session.isEditing()) {
-                InetAddress multicastAddress;
-                if((multicastAddress = messageReceiver.getActiveGroup()) != null) {
-                    try {
-                        ChatMessage message = new ChatMessage(session.getToken(), text);
-                        InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, MessageReceiver.CHAT_PORT);
-                        messageSender.sendMessage(message, groupAddress);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                } else System.out.println("Generic message sending error");
-            } else System.out.println("You're not editing any document");
-        } else System.out.println("You're not logged in");
-    }
-
-    private void printCommandsHelp() {
-        String message =
-                "The following commands are available:\n" +
-                        "  help: to show this help message\n\n" +
-                        "  register USER PASS: to register a new account with username USER and password PASS\n" +
-                        "  login USER PASS: to login using USER and PASS credentials\n" +
-                        "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
-                        "  edit DOC SEC (TMP): to edit the section SEC of DOC document (using TMP temporary filename)\n" +
-                        "  stopedit: to stop the current editing session\n" +
-                        "  showsec DOC SEC (OUT): to download the content of the SEC section of DOC document (using OUT output filename)\n" +
-                        "  showdoc DOC (OUT): to download the content concatenation of all the document's sections (using OUT output filename)\n" +
-                        "  logout: to logout\n" +
-                        "  list: to list all the documents you are able to see and edit\n" +
-                        "  share USER DOC: to share a document with someone\n" +
-                        "  news: to get all the news\n\n" +
-                        "  receive: to get all the unread chat messages\n" +
-                        "  send TEXT: to send the TEXT message into the document chat";
-        System.out.println(message);
     }
 }
