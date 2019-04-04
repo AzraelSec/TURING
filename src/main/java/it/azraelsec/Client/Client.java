@@ -1,6 +1,5 @@
 package it.azraelsec.Client;
 
-import it.azraelsec.Chat.CDAManager;
 import it.azraelsec.Chat.ChatMessage;
 import it.azraelsec.Chat.MessageReceiver;
 import it.azraelsec.Chat.MessageSender;
@@ -25,13 +24,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.lang.Long.getLong;
 
 public class Client {
     private static int TCP_PORT = 1337;
@@ -39,25 +33,18 @@ public class Client {
     private static int RMI_PORT = 3400;
     private static String SERVER_ADDRESS = "127.0.0.1";
     private static String DATA_DIR = "./client_data/";
-    private String authenticationToken;
     private Socket clientSocket;
     private DataOutputStream clientOutputStream;
     private DataInputStream clientInputStream;
-    private String onEditingFilename = null;
     private NotificationClientThread notificationThread;
-    private final ArrayList<String> notificationQueue;
     private final MessageReceiver messageReceiver;
     private MessageSender messageSender;
+    private LocalSession session;
 
     public Client() {
-        authenticationToken = null;
-        notificationQueue = new ArrayList<>();
-        notificationThread = new NotificationClientThread(notificationQueue);
+        notificationThread = new NotificationClientThread();
         messageReceiver = new MessageReceiver();
-    }
-
-    private boolean isLogged() {
-        return authenticationToken != null && clientSocket.isConnected();
+        session = null;
     }
 
     private void setup(Namespace cmdOptions) {
@@ -82,7 +69,7 @@ public class Client {
         clientInputStream = new DataInputStream(clientSocket.getInputStream());
         messageReceiver.start();
         messageSender = MessageSender.create();
-        if(messageSender == null) throw new IOException(); //todo: improve
+        if(messageSender == null) throw new IOException();
     }
 
     private void loadConfig(String filePath) {
@@ -161,6 +148,7 @@ public class Client {
     private void commandDispatchingLoop() throws NotBoundException, IOException {
         String command = null;
         Scanner input = new Scanner(System.in);
+        boolean dispatchingShutdown = false;
         do {
             System.out.print("turing@127.0.0.1# ");
             String argsLine = input.nextLine();
@@ -170,6 +158,9 @@ public class Client {
                 try {
                     switch (command) {
                         case "exit":
+                        case "quit":
+                            if(session != null) System.err.println("You need to logout before");
+                            else dispatchingShutdown = true;
                             break;
                         case "register":
                             if (args.length > 2) {
@@ -178,7 +169,7 @@ public class Client {
                                 if (register(username, password))
                                     System.out.println("User " + username + " correctly registered!");
                                 else
-                                    System.out.println("Error in user registration! Probably user already exists!");
+                                    System.out.println("Error in user registration: user probably already exists");
                             } else throw new CommandDispatchingException();
                             break;
                         case "login":
@@ -269,7 +260,7 @@ public class Client {
                     System.out.println("Error in command arguments dispatching");
                 }
             }
-        } while (command.compareTo("exit") != 0);
+        } while (!dispatchingShutdown);
     }
 
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
@@ -280,9 +271,9 @@ public class Client {
     }
 
     private void edit(String docName, int secNumber, String chosenFilename) {
-        if (isLogged()) {
-            onEditingFilename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
-            try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+        if (session != null) {
+            session.setOnEdit(chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber);
+            try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
                 Communication.sendAndReceiveStream(clientOutputStream, clientInputStream, address -> {
                     long dAddress = Long.parseLong(address);
@@ -299,27 +290,29 @@ public class Client {
     }
 
     private void login(String username, String password, int notificationPort) {
-        if (!isLogged())
-            Communication.send(clientOutputStream, clientInputStream, token -> authenticationToken = token, System.err::println, Commands.LOGIN, username, password, notificationPort);
+        if (session == null)
+            Communication.send(clientOutputStream, clientInputStream, token -> session = new LocalSession(token), System.err::println, Commands.LOGIN, username, password, notificationPort);
         else System.out.println("You're already logged in");
     }
 
     private void logout() {
-        if (isLogged()) {
-            authenticationToken = null;
-            notificationQueue.clear();
-            Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
+        if (session != null) {
+            if(!session.isEditing()) {
+                session = null;
+                notificationThread.clearNotificationList();
+                Communication.send(clientOutputStream, clientInputStream, null, null, Commands.LOGOUT);
+            } else System.out.println("You should 'stopedit' before logging out");
         } else System.out.println("You're not logged in");
     }
 
     private void editEnd() {
-        if (isLogged()) {
-            if (onEditingFilename != null) {
+        if (session != null) {
+            if (!session.isEditing()) {
                 Communication.send(clientOutputStream, clientInputStream, s -> {
-                    try (FileChannel fileChannel = FileChannel.open(Paths.get(onEditingFilename), StandardOpenOption.READ);
+                    try (FileChannel fileChannel = FileChannel.open(Paths.get(session.getOnEditing()), StandardOpenOption.READ);
                          InputStream stream = Channels.newInputStream(fileChannel)) {
                         Communication.receiveAndSendStream(clientInputStream, clientOutputStream, stream);
-                        onEditingFilename = null;
+                        session.setOnEdit(null);
                         messageReceiver.setNewGroup(0L);
                     } catch (IOException ex) {
                         ex.printStackTrace();
@@ -330,13 +323,13 @@ public class Client {
     }
 
     private void create(String docName, int secNumber) {
-        if (isLogged())
+        if (session != null)
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.CREATE, docName, secNumber);
         else System.out.println("You're not logged in");
     }
 
     private void showSection(String docName, int secNumber, String chosenFilename) {
-        if (isLogged()) {
+        if (session != null) {
             String filename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
@@ -352,7 +345,7 @@ public class Client {
     }
 
     private void documentsList() {
-        if (isLogged())
+        if (session != null)
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
         else System.out.println("You're not logged in");
     }
@@ -362,7 +355,7 @@ public class Client {
     }
 
     private void showDocument(String docName, String outputName) {
-        if (isLogged()) {
+        if (session != null) {
             String filename = DATA_DIR + (outputName == null ? docName : outputName);
             try (FileChannel fileChannel = FileChannel.open(Paths.get(filename), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                  OutputStream fileStream = Channels.newOutputStream(fileChannel)) {
@@ -382,19 +375,17 @@ public class Client {
     }
 
     private void printNews() {
-        if (isLogged()) {
-            synchronized (notificationQueue) {
-                if (!notificationQueue.isEmpty()) {
-                    System.out.println("You have permission on these new documents: " + String.join(",", notificationQueue));
-                    notificationQueue.clear();
-                } else System.out.println("No news available");
-            }
+        if (session != null) {
+            List<String> notifications = notificationThread.getAllNotifications();
+            if (!notifications.isEmpty())
+                System.out.println("You have permission on these new documents: " + String.join(",", notifications));
+            else System.out.println("No news available");
         } else System.out.println("You're not logged in");
     }
 
     private void showMessages() {
-        if(isLogged()) {
-            if(onEditingFilename != null) {
+        if(session != null) {
+            if(session.isEditing()) {
                 ChatMessage[] unreadMessages = messageReceiver.getMessages();
                 for(ChatMessage message : unreadMessages)
                     System.out.println(message);
@@ -403,12 +394,12 @@ public class Client {
     }
 
     private void sendMessage(String text) {
-        if(isLogged()) {
-            if(onEditingFilename != null) {
+        if(session != null) {
+            if(session.isEditing()) {
                 InetAddress multicastAddress;
                 if((multicastAddress = messageReceiver.getActiveGroup()) != null) {
                     try {
-                        ChatMessage message = new ChatMessage(authenticationToken, text);
+                        ChatMessage message = new ChatMessage(session.getToken(), text);
                         InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, MessageReceiver.CHAT_PORT);
                         messageSender.sendMessage(message, groupAddress);
                     } catch (IOException ex) {
@@ -422,7 +413,7 @@ public class Client {
     private void printCommandsHelp() {
         String message =
                 "The following commands are available:\n" +
-                        "  help: to show this help message\n" +
+                        "  help: to show this help message\n\n" +
                         "  register USER PASS: to register a new account with username USER and password PASS\n" +
                         "  login USER PASS: to login using USER and PASS credentials\n" +
                         "  create DOC SEC: to create a new document named DOC and containing SEC sections\n" +
@@ -433,7 +424,7 @@ public class Client {
                         "  logout: to logout\n" +
                         "  list: to list all the documents you are able to see and edit\n" +
                         "  share USER DOC: to share a document with someone\n" +
-                        "  news: to get all the news\n" +
+                        "  news: to get all the news\n\n" +
                         "  receive: to get all the unread chat messages\n" +
                         "  send TEXT: to send the TEXT message into the document chat";
         System.out.println(message);

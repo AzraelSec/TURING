@@ -12,10 +12,7 @@ import java.net.Socket;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class NotificationClientThread extends Thread {
     private final List<String> localNotificationQueue;
@@ -23,12 +20,12 @@ public class NotificationClientThread extends Thread {
     private boolean closing;
     private int servingPort;
 
-    public NotificationClientThread(List<String> localNotificationQueue) {
+    public NotificationClientThread() {
         servingPort = 0;
         handlers = new HashMap<>();
         handlers.put(Commands.NEW_NOTIFICATIONS, this::onNews);
         handlers.put(Commands.EXIT, this::onClosing);
-        this.localNotificationQueue = localNotificationQueue;
+        this.localNotificationQueue = new ArrayList<>();
     }
 
     @Override
@@ -97,6 +94,23 @@ public class NotificationClientThread extends Thread {
     private void onClosing(Object[] args, Result sendback) {
         closing = true;
         sendback.send(Commands.SUCCESS, "Notification server is closing");
+    }
+
+    public void clearNotificationList() {
+        synchronized (localNotificationQueue) {
+            localNotificationQueue.clear();
+        }
+    }
+
+    public ArrayList<String> getAllNotifications() {
+        ArrayList<String> notifications = new ArrayList<>();
+        synchronized (localNotificationQueue) {
+            if(!localNotificationQueue.isEmpty()) {
+                notifications.addAll(localNotificationQueue);
+                localNotificationQueue.clear();
+            }
+        }
+        return notifications;
     }
 
     public int getNotificationLocalPort() {
