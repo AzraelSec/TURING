@@ -38,9 +38,11 @@ public class Section implements Serializable {
     public boolean tryToSetEditing(User user) {
         if(lock.tryLock()) {
             if(userOnEditing != null) {
-                if(user == null)
-                    userOnEditing = user;
-                else return false;
+                if(user == null) userOnEditing = null;
+                else {
+                    lock.unlock();
+                    return false;
+                }
             }
             else userOnEditing = user;
             lock.unlock();

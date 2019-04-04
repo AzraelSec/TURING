@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c42fd80-4600-4e87-a868-7ef7db3305d0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -56,7 +52,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="528">
@@ -67,6 +63,30 @@
                 <element signature="method#checkConfigFile#0;class#Client#0" />
                 <element signature="method#checkDataDirectory#0;class#Client#0" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="440">
+              <caret line="181" column="64" selection-start-line="181" selection-start-column="64" selection-end-line="181" selection-end-column="64" />
+              <folding>
+                <element signature="e#2372#2373#0" expanded="true" />
+                <element signature="e#2475#2476#0" expanded="true" />
+                <element signature="e#13800#13801#0" expanded="true" />
+                <element signature="e#13843#13844#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="572">
+              <caret line="46" column="33" lean-forward="true" selection-start-line="46" selection-start-column="33" selection-end-line="46" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -172,10 +192,8 @@
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Notification/NotificationServerThread.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Document.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java" />
-        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/ChatMessage.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageSender.java" />
-        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Notification/NotificationClientThread.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Client/LocalSession.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
@@ -183,6 +201,8 @@
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java" />
+        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java" />
+        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java" />
       </list>
     </option>
   </component>
@@ -656,12 +676,6 @@
           <properties />
           <option name="timeStamp" value="2" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java</url>
-          <line>103</line>
-          <properties />
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
@@ -875,25 +889,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="46" selection-start-line="46" selection-end-line="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="990">
-          <caret line="62" selection-start-line="62" selection-end-line="62" />
-          <folding>
-            <element signature="e#2475#2476#0" expanded="true" />
-            <element signature="e#13800#13801#0" expanded="true" />
-            <element signature="e#13843#13844#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Protocol/Communication.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="365">
@@ -1014,6 +1009,26 @@
             <element signature="method#checkConfigFile#0;class#Client#0" />
             <element signature="method#checkDataDirectory#0;class#Client#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="181" column="64" selection-start-line="181" selection-start-column="64" selection-end-line="181" selection-end-column="64" />
+          <folding>
+            <element signature="e#2372#2373#0" expanded="true" />
+            <element signature="e#2475#2476#0" expanded="true" />
+            <element signature="e#13800#13801#0" expanded="true" />
+            <element signature="e#13843#13844#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Documents/Section.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="46" column="33" lean-forward="true" selection-start-line="46" selection-start-column="33" selection-end-line="46" selection-end-column="33" />
         </state>
       </provider>
     </entry>
