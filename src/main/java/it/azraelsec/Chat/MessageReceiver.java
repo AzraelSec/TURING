@@ -5,6 +5,7 @@ import java.net.*;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.MembershipKey;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
@@ -14,13 +15,13 @@ import java.util.List;
 public class MessageReceiver extends Thread {
     public static final int CHAT_PORT = 1338;
     private final List<ChatMessage> messageQueue;
-    private long activeGroup;
+    private MembershipKey activeGroup;
     private DatagramChannel channel;
     private NetworkInterface interf;
 
     public MessageReceiver() {
         messageQueue = new ArrayList<>();
-        activeGroup = 0L;
+        activeGroup = null;
         channel = null;
         interf = null;
     }
@@ -94,21 +95,18 @@ public class MessageReceiver extends Thread {
         if (channel != null) {
             if (group > 0) {
                 byte[] rawAddress = CDAManager.decimalToAddress(group).getAddress();
-                //todo: attention
-                /*if (activeGroup > 0L) {
-                    channel.leaveGroup(CDAManager.decimalToAddress(activeGroup));
-                }*/
-                channel.join(InetAddress.getByAddress(rawAddress), interf);
-                activeGroup = group;
+                if (activeGroup != null && activeGroup.isValid()) activeGroup.drop();
+                activeGroup = channel.join(InetAddress.getByAddress(rawAddress), interf);
+                activeGroup.block(Inet4Address.getLocalHost());
             }
             else {
-                //socket.leaveGroup(CDAManager.decimalToAddress(activeGroup));
-                activeGroup = 0L;
+                activeGroup.drop();
+                activeGroup = null;
             }
         }
     }
 
-    public long getActiveGroup() {
-        return activeGroup;
+    public InetAddress getActiveGroup() {
+        return activeGroup.group();
     }
 }

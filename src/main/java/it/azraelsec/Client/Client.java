@@ -405,12 +405,11 @@ public class Client {
     private void sendMessage(String text) {
         if(isLogged()) {
             if(onEditingFilename != null) {
-                long activeGroup;
-                if((activeGroup = messageReceiver.getActiveGroup()) > 0L) {
+                InetAddress multicastAddress;
+                if((multicastAddress = messageReceiver.getActiveGroup()) != null) {
                     try {
                         ChatMessage message = new ChatMessage(authenticationToken, text);
-                        InetAddress multicast = CDAManager.decimalToAddress(activeGroup);
-                        InetSocketAddress groupAddress = new InetSocketAddress(multicast, MessageReceiver.CHAT_PORT);
+                        InetSocketAddress groupAddress = new InetSocketAddress(multicastAddress, MessageReceiver.CHAT_PORT);
                         messageSender.sendMessage(message, groupAddress);
                     } catch (IOException ex) {
                         ex.printStackTrace();
