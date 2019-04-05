@@ -103,7 +103,6 @@ public class Communication {
 
     public static void readFileFromSocket(DataInputStream inputStream, OutputStream stream) throws IOException {
         byte[] buffer = new byte[SEGMENT_SIZE];
-        System.out.println("[DEBUG]Received Buffer: " + buffer);
         int size;
         while((size = inputStream.readInt()) >= 0) {
             while(size > 0) {

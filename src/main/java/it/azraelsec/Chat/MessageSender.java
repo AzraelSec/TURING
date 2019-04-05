@@ -1,7 +1,7 @@
 package it.azraelsec.Chat;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
@@ -16,7 +16,9 @@ public class MessageSender {
 
     public static MessageSender create() {
         try {
-            DatagramChannel channel = DatagramChannel.open();
+            DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
+            NetworkInterface interf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
+            channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, interf);
             return new MessageSender(channel);
         } catch (IOException ex) {
             return null;

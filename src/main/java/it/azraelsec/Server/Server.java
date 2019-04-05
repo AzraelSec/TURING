@@ -55,6 +55,12 @@ public class Server {
         documentDatabase = initDocumentsDB();
         RMIInit();
         System.out.println(String.format("TCP_PORT: %s\nRMI_PORT: %s\nDATA_DIR: %s", TCP_PORT, RMI_PORT, DATA_DIR));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("TURING Server is shutting down...");
+            TCPConnectionDispatcher.shutdown();
+            storeUsersDB();
+            storeDocumentsDB();
+        }));
     }
     private void serve() {
         try(ServerSocket TCPServer = new ServerSocket()) {
@@ -69,12 +75,6 @@ public class Server {
         }
         catch (IOException ex) {
             ex.printStackTrace();
-        }
-        finally {
-            System.out.println("TURING it.azraelsec.Server is shutting down...");
-            TCPConnectionDispatcher.shutdown();
-            storeUsersDB();
-            storeDocumentsDB();
         }
     }
     private boolean storeUsersDB() {

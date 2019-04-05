@@ -32,7 +32,7 @@ public class MessageReceiver extends Thread {
         try {
             Selector selector = Selector.open();
             channel = DatagramChannel.open(StandardProtocolFamily.INET);
-            interf = NetworkInterface.getByInetAddress(InetAddress.getByName("localhost"));
+            interf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
             channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, interf);
             channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             channel.bind(new InetSocketAddress(Client.UDP_PORT));
@@ -98,7 +98,6 @@ public class MessageReceiver extends Thread {
                 byte[] rawAddress = CDAManager.decimalToAddress(group).getAddress();
                 if (activeGroup != null && activeGroup.isValid()) activeGroup.drop();
                 activeGroup = channel.join(InetAddress.getByAddress(rawAddress), interf);
-                activeGroup.block(Inet4Address.getLocalHost());
             }
             else {
                 activeGroup.drop();

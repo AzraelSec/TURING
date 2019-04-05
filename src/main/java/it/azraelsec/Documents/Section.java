@@ -14,8 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Section implements Serializable {
     private static final long serialVersionUID = 1L;
-    private transient User userOnEditing;
-    private transient ReentrantLock lock;
+    private User userOnEditing;
+    private ReentrantLock lock;
     private String filepath;
 
     public Section(String rootPath, String filename)  {

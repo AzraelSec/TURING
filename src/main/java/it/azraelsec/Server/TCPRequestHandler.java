@@ -204,8 +204,9 @@ public class TCPRequestHandler implements Runnable {
                     if(doc.canAccess(user)) {
                         InputStream documentInputStream = null;
                         try {
-                            String sectionsList = String.join(",", doc.getOnEditingSections());
-                            sendback.send(Commands.SUCCESS, sectionsList);
+                            String[] sectionsList = doc.getOnEditingSections();
+                            String sectionsListString = sectionsList.length > 0 ? String.join(",", doc.getOnEditingSections()) : "None";
+                            sendback.send(Commands.SUCCESS, sectionsListString);
                             documentInputStream = doc.getDocumentInputStream();
                             Communication.receiveAndSendStream(socketInputStream, socketOutputStream, documentInputStream);
                         }  catch (IOException ex) {

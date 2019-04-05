@@ -426,6 +426,8 @@ public class Client {
                         case "help":
                             printCommandsHelp();
                             break;
+                        default:
+                            throw new CommandDispatchingException();
                     }
                 } catch (CommandDispatchingException ex) {
                     System.err.println("Error in command arguments dispatching");
