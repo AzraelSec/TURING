@@ -14,12 +14,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * The {@code MessageReceiver} class represent a {@code ChatMessage} receiver
+ * which waits for new messages addressed to him and stores them in a {@code List}.
+ * <p>
+ * The {@code Client} will then have the possibility to asyncronously withdraw
+ * them all.
+ * <p>
+ * This {@code Thread} spawn a {@code DatagramChannel} which acts like a
+ * UDP Server which waits for new multicast messages sent from other {@code Client}
+ * processes around the network.
+ *
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public class MessageReceiver extends Thread {
     private final List<ChatMessage> messageQueue;
     private MembershipKey activeGroup;
     private DatagramChannel channel;
     private NetworkInterface interf;
 
+    /**
+     * It initializes the internal structure related to the UDP channel and
+     * message queue.
+     */
     public MessageReceiver() {
         messageQueue = new ArrayList<>();
         activeGroup = null;
@@ -27,6 +45,9 @@ public class MessageReceiver extends Thread {
         interf = null;
     }
 
+    /**
+     * It is the main method in which is executed all the thread control logic.
+     */
     @Override
     public void run() {
         try {
@@ -76,6 +97,11 @@ public class MessageReceiver extends Thread {
         }
     }
 
+    /**
+     * It returns a String representation of the {@code ByteBuffer} content.
+     * @param buffer    the source ByteBuffer
+     * @return          the string source buffer's content
+     */
     private String getString(ByteBuffer buffer) {
         int size = buffer.getInt();
         byte[] res = new byte[size];
@@ -83,6 +109,10 @@ public class MessageReceiver extends Thread {
         return new String(res);
     }
 
+    /**
+     * It gets all the messages existing in the queue.
+     * @return  the available {@code ChatMessage} array
+     */
     public ChatMessage[] getMessages() {
         ChatMessage[] messages = null;
         synchronized (messageQueue) {
@@ -92,6 +122,13 @@ public class MessageReceiver extends Thread {
         return messages;
     }
 
+    /**
+     * It makes the {@code MessageReceiver} to listen for messages coming from
+     * the group represented by the IPv4 address in decimal format.
+     * @param group                 the group address in decimal representation
+     * @throws IOException          if a I/O error occurs
+     * @throws UnknownHostException if group is not a valid address
+     */
     public void setNewGroup(long group) throws IOException, UnknownHostException {
         if (channel != null) {
             if (group > 0) {
@@ -106,6 +143,10 @@ public class MessageReceiver extends Thread {
         }
     }
 
+    /**
+     * Get the active group.
+     * @return the {@code InetAddress} active group address
+     */
     public InetAddress getActiveGroup() {
         return activeGroup.group();
     }

@@ -27,6 +27,17 @@ import java.rmi.registry.Registry;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The {@code Client} class represents the TURING Client execution and provides all the methods
+ * which allows the user to interact with the {@code Server}.
+ * <p>
+ * It smoothly manages the {@code NotificationClientThread}, {@code MessageReceiver}, {@code MessageSender}
+ * user interaction (CLI) life-cycle.
+ *
+ * {@value UDP_PORT} is the UDP port used to interact with other {@code Client}
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public class Client {
     private static int TCP_PORT = 1337;
     public static int UDP_PORT = 1338;
@@ -41,12 +52,24 @@ public class Client {
     private MessageSender messageSender;
     private LocalSession session;
 
+    /**
+     * Initializes {@code NotificationClientThread}, {@code MessageReceiver} and {@code LocalSession} objects.
+     */
     public Client() {
         notificationThread = new NotificationClientThread();
         messageReceiver = new MessageReceiver();
         session = null;
     }
 
+    /**
+     * Routine that setups the {@code Client} configuration based on the command line arguments passed during
+     * the program startup.
+     * <p>
+     * It needs to be called before the {@code connect} method.
+     *
+     * @see LocalSession
+     * @param cmdOptions    the command line arguments
+     */
     private void setup(Namespace cmdOptions) {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable(cmdOptions.getInt("tcp_command_port")).orElseGet(() -> TCP_PORT);
@@ -61,6 +84,16 @@ public class Client {
         System.out.println(String.format("TCP_PORT: %s\nUDP_PORT: %s\nRMI_PORT: %s\nSERVER_ADDRESS: %s", TCP_PORT, UDP_PORT, RMI_PORT, SERVER_ADDRESS));
     }
 
+    /**
+     * Tries to connect to the {@code Server} running instance, create references to the
+     * streams for {@code Socket} I/O operations and starts the {@code NotificationClientThread}.
+     * <p>
+     * This method needs to be called after {@code setup} method execution.
+     *
+     * @see DataInputStream
+     * @see DataOutputStream
+     * @throws IOException  if I/O errors occur
+     */
     private void connect() throws IOException {
         notificationThread.start();
         clientSocket = new Socket();
@@ -72,6 +105,11 @@ public class Client {
         if(messageSender == null) throw new IOException();
     }
 
+    /**
+     * Loads the JSON configuration file passed as argument.
+     *
+     * @param filePath  JSON configuration file path
+     */
     private void loadConfig(String filePath) {
         if (checkConfigFile(filePath)) {
             try {
@@ -88,20 +126,30 @@ public class Client {
         } else System.out.println("Configuration file not found");
     }
 
+    /**
+     * Checks if the JSON configuration file exists and the path is a valid one.
+     *
+     * @param filePath  file path
+     * @return  true if the the file exists and is a valid file, false otherwise
+     */
     private boolean checkConfigFile(String filePath) {
         File configFile = new File(filePath);
         return configFile.isFile() && configFile.exists();
     }
 
+    /**
+     * Check if the data directory exists and is a valid directory, otherwise it creates it.
+     */
     private void checkDataDirectory() {
         File dataDir = new File(DATA_DIR);
         if (!dataDir.isDirectory() || !dataDir.exists()) dataDir.mkdirs();
     }
 
-    /*
-     * MAIN METHOD
-     * */
 
+    /**
+     * Program Entry Point.
+     * @param args  command arguments
+     */
     public static void main(String[] args) {
         System.setProperty("java.net.preferIPv4Stack" , "true");
         ArgumentParser argpars = ArgumentParsers.newFor("TURING Client")
@@ -120,7 +168,7 @@ public class Client {
         try {
             ns = argpars.parseArgs(args);
         } catch (ArgumentParserException ex) {
-            argpars.printHelp();
+            argpars.handleError(ex);
             System.exit(1);
         }
 
@@ -144,7 +192,14 @@ public class Client {
         }
     }
 
-
+    /**
+     *
+     * @param username
+     * @param password
+     * @return
+     * @throws RemoteException
+     * @throws NotBoundException
+     */
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
         RemoteRegistration registrationService;
         Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, RMI_PORT);

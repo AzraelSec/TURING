@@ -133,7 +133,6 @@ public class Server {
         {
             try{
                 JSONObject configs = new JSONObject(Files.lines(new File(filePath).toPath()).collect(Collectors.joining("\n")));
-                
                 TCP_PORT = configs.has("TCP_PORT") ? configs.getInt("TCP_PORT") : TCP_PORT;
                 RMI_PORT = configs.has("RMI_PORT") ? configs.getInt("RMI_PORT") : RMI_PORT;
                 DATA_DIR = configs.has("DATA_DIR") ? configs.getString("DATA_DIR") : DATA_DIR;
@@ -167,7 +166,6 @@ public class Server {
             .defaultHelp(true)
             .description("TURING distributed program server");
         argpars.addArgument("-t", "--tcp-command-port").help("TCP commands port").type(Integer.class);
-        argpars.addArgument("-u", "--udp-multicast-port").help("UDP multicast port").type(Integer.class);
         argpars.addArgument("-r", "--rmi-port").help("RMI communication port").type(Integer.class);
         argpars.addArgument("-d", "--data-dir").help("server data directory").type(String.class);
         argpars.addArgument("-c", "--config-file").help("server configuration file path").type(String.class);
@@ -181,7 +179,7 @@ public class Server {
             s.serve();
         }
         catch(ArgumentParserException ex) {
-            argpars.printHelp();
+            argpars.handleError(ex);
             System.exit(1);
         }
         catch (RemoteException ex) {
