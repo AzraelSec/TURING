@@ -21,7 +21,7 @@ public class CDAManager {
     public long getChatAddress(Document document) {
         Long lookedup = null;
         if((lookedup = chatDatabase.get(document)) != null) return lookedup;
-        for(lookedup = BASE_MULTICAST_ADDR; lookedup < BOUND_MULTICAST_ADDR; lookedup++)
+        for(lookedup = BASE_MULTICAST_ADDR; lookedup <= BOUND_MULTICAST_ADDR; lookedup++)
             if(!chatDatabase.contains(lookedup)) {
                 chatDatabase.put(document, lookedup);
                 return lookedup;

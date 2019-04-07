@@ -69,7 +69,7 @@ public class Server {
 
             while(true) {
                 Socket socket = TCPServer.accept();
-                System.out.println("New TCP command connection enstablished");
+                System.out.println("New TCP connection: " + socket.getRemoteSocketAddress().toString());
                 TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, documentDatabase, cdaManager, socket));
             }
         }

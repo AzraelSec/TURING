@@ -71,7 +71,8 @@ public class Communication {
             if( inputStream != null ) receive(inputStream, null, rets);
         }
         catch (Exception ex) {
-            Optional.ofNullable(onFailure).ifPresentOrElse((lambda) -> lambda.handle(ex.getMessage()), ex::printStackTrace);
+            if(onFailure != null) onFailure.handle(ex.getMessage());
+            else ex.printStackTrace();
         }
     }
 

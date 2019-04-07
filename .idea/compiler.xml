@@ -6,13 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="turing-client" />
         <module name="TURING" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="TURING" target="1.9" />
-      <module name="turing-client" target="1.9" />
     </bytecodeTargetLevel>
   </component>
 </project>
