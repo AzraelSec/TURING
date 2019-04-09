@@ -76,17 +76,17 @@ public class CDAManager {
      * Converts an {@code InetAddress} object to its decimal representation.
      * <p>
      * This method has not been used except to test the {@code decimalToAddress} method.
+     * <p>
+     * It basically shifts two bytes of the IPv4 raw representation and
+     * gets the value casting it to long. Then sums all together obtaining
+     * the resulting value. The logical AND operator (& 0xFFL) is there to
+     * avoid the sign extension caused by the conversion.
+     *
      * @param address   the converted address
      * @return  the decimal representation of the input address
      */
     public static long addressToDecimal(InetAddress address) {
         byte[] rawAddress = address.getAddress();
-        /*
-        It basically shifts two bytes of the IPv4 raw representation and
-        gets the value casting it to long. Then sums all together obtaining
-        the resulting value. The logical AND operator (& 0xFFL) is there to
-        avoid the sign extension caused by the conversion.
-         */
         return ((rawAddress[0] & 0xFFL) << (3 * 8)) +
                 ((rawAddress[1] & 0xFFL) << (2 * 8)) +
                 ((rawAddress[2] & 0xFFL) << (8)) +
