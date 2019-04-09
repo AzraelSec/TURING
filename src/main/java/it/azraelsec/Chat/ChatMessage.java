@@ -13,7 +13,7 @@ import java.util.Date;
  * @author Federico Gerardi
  * @author https://azraelsec.github.io/
  */
-public class ChatMessage implements Serializable {
+public class ChatMessage implements Serializable, Comparable<ChatMessage> {
     private static final long serialVersionUID = 1L;
     private final String sender;
     private final String message;
@@ -73,5 +73,16 @@ public class ChatMessage implements Serializable {
     @Override
     public String toString() {
         return "[" + sender +"] - " + message;
+    }
+
+    /**
+     * Makes two {@code ChatMessage}s (horribly) comparable based on the timestamp value.
+     *
+     * @param o object to compare the timestamp to
+     * @return  a value based on the difference between their timestamp
+     */
+    @Override
+    public int compareTo(ChatMessage o) {
+        return (int) (time - o.getTime());
     }
 }

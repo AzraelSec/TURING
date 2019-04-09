@@ -6,6 +6,14 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Vector;
 
+/**
+ * The {@code Document} class represents a document managed by TURING system.
+ * Each document is made up by a number of {@code Section}s and is stored on the {@code Server} as a directory
+ * which contains a number of different files.
+ *
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
     private String documentName;
@@ -13,6 +21,17 @@ public class Document implements Serializable {
     private User owner;
     private ArrayList<User> modifiers;
 
+    /**
+     * Creates a new {@code Document} storing its {@code Section}s' references, its name and the owner {@code User}'s
+     * reference.
+     * <p>
+     * This constructor is not used by the outside. In fact, the {@code Document#createDocument} method should
+     * be used instead.
+     *
+     * @param sections  sections' list
+     * @param name  document's name
+     * @param owner owner user
+     */
     private Document(ArrayList<Section> sections, String name, User owner){
         documentName = name;
         this.sections = sections;
@@ -20,11 +39,26 @@ public class Document implements Serializable {
         modifiers = new ArrayList<>();
     }
 
+    /**
+     * Gets the document's name.
+     *
+     * @return  document's name
+     */
     public String getName() {
         return documentName;
     }
 
-    public static Document createDocument(String directory, int sectionsNumber, String name, User owner) throws IOException {
+    /**
+     * Creates a new {@code Document}.
+     *
+     * @param directory output directory path
+     * @param sectionsNumber    number of document's sections
+     * @param name  document's name
+     * @param owner owner user
+     * @return  the new request document
+     * @throws IOException  if file I/O error occurs
+     */
+    static Document createDocument(String directory, int sectionsNumber, String name, User owner) throws IOException {
         String documentLocation = directory + "/" + name;
         File document = new File(documentLocation);
         if(!document.exists() || !document.isDirectory())
@@ -40,6 +74,12 @@ public class Document implements Serializable {
         return new Document(sections, name, owner);
     }
 
+    /**
+     * Gets the requested {@code Section}.
+     *
+     * @param index the section's number
+     * @return  the requested section
+     */
     public Section getSection(int index) {
         try {
             return sections.get(index);
@@ -49,22 +89,45 @@ public class Document implements Serializable {
         }
     }
 
+    /**
+     * Verifies if the requesting {@code User} has permissions to access this {@code Document}.
+     *
+     * @param user  requesting user
+     * @return  true if user can access the this file, false otherwise
+     */
     public boolean canAccess(User user) {
         synchronized (modifiers) {
             return modifiers.contains(user) || owner.equals(user);
         }
     }
 
+    /**
+     * Add input {@code User} to the modifiers' list.
+     *
+     * @param user  user to add to the allowed list
+     */
     public void addModifier(User user) {
         synchronized (modifiers) {
             if (!modifiers.contains(user)) modifiers.add(user);
         }
     }
 
+    /**
+     * Checks if the input {@code User} is the {@code Document} owner.
+     *
+     * @param user  user reference
+     * @return  true if {@code user} is this document owner
+     */
     public boolean isCreator(User user) {
         return owner.equals(user);
     }
 
+    /**
+     * Gets an {@code InputStream} object that streams the entire {@code Document} content.
+     *
+     * @return  {@code InputStream} object
+     * @throws IOException  if an I/O error occurs
+     */
     public InputStream getDocumentInputStream() throws IOException {
         Vector<InputStream> secISVector = new Vector<>();
         for(Section sec : sections)
@@ -73,6 +136,11 @@ public class Document implements Serializable {
         return docIS;
     }
 
+    /**
+     * Gets the on editing {@code Section}s' list.
+     *
+     * @return  array of on editing sections' name
+     */
     public String[] getOnEditingSections() {
         ArrayList<String> onEditingSections = new ArrayList<>();
         for(int i = 0; i < sections.size(); i++) {

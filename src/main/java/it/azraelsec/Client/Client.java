@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
  * It smoothly manages the {@code NotificationClientThread}, {@code MessageReceiver}, {@code MessageSender}
  * user interaction (CLI) life-cycle.
  *
- * {@value UDP_PORT} is the UDP port used to interact with other {@code Client}
  * @author Federico Gerardi
  * @author https://azraelsec.github.io/
  */
@@ -148,6 +147,7 @@ public class Client {
 
     /**
      * Program Entry Point.
+     *
      * @param args  command arguments
      */
     public static void main(String[] args) {
@@ -193,12 +193,13 @@ public class Client {
     }
 
     /**
+     * Register a new {@code User} into {@code UserDB} via RMI invocation.
      *
-     * @param username
-     * @param password
-     * @return
-     * @throws RemoteException
-     * @throws NotBoundException
+     * @param username  user's username
+     * @param password  user's password
+     * @return  true if the register succeeded, false otherwise
+     * @throws RemoteException  if RMI exception occurs
+     * @throws NotBoundException if registry lookup fault occurs
      */
     private boolean register(String username, String password) throws RemoteException, NotBoundException {
         RemoteRegistration registrationService;
@@ -207,6 +208,15 @@ public class Client {
         return registrationService.register(username, password);
     }
 
+    /**
+     * Starts an edit session for a specific {@code Document}'s {@code Section}.
+     * <p>
+     * Initializes a new multicast group for a {@code MessageReceiver} object too.
+     *
+     * @param docName   document filename
+     * @param secNumber section index
+     * @param chosenFilename    output filename
+     */
     private void edit(String docName, int secNumber, String chosenFilename) {
         if (session != null) {
             String filepath = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
@@ -227,6 +237,16 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Authenticates the user into system trying to validate the user's password and informs the
+     * server about its notification's port used by its {@code NotificationClientThread}.
+     * <p>
+     * It starts a new {@code LocalSession} object that collects all the session's information.
+     *
+     * @param username  user username
+     * @param password  user password
+     * @param notificationPort
+     */
     private void login(String username, String password, int notificationPort) {
         if (session == null)
             Communication.send(clientOutputStream, clientInputStream, token -> {
@@ -236,6 +256,10 @@ public class Client {
         else System.err.println("You're already logged in");
     }
 
+    /**
+     * Kills the {@code LocalSession}, stops the {@code NotificationClientThread} and clears the
+     * notifications' list.
+     */
     private void logout() {
         if (session != null) {
             if(!session.isEditing()) {
@@ -246,6 +270,10 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Stops a {@code Document}'s {@code Section} editing and imposes the {@code MessageReceiver} to
+     * leave the actual multicast group.
+     */
     private void editEnd() {
         if (session != null) {
             if (session.isEditing()) {
@@ -263,12 +291,28 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Creates a new {@code Document} remote object.
+     *
+     * @param docName   new document's name
+     * @param secNumber number of sections the new document has got
+     */
     private void create(String docName, int secNumber) {
         if (session != null)
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.CREATE, docName, secNumber);
         else System.err.println("You're not logged in");
     }
 
+    /**
+     * Reads the content of the requested {@code Section} and, if somebody is editing it, returns
+     * the editor's name.
+     * <p>
+     * If the {@code chosenFilename} is null, the default name is used: {@code docName}_{@code secNumber}.
+     *
+     * @param docName   document's name
+     * @param secNumber target section
+     * @param chosenFilename    output filename or null
+     */
     private void showSection(String docName, int secNumber, String chosenFilename) {
         if (session != null) {
             String filename = chosenFilename != null ? chosenFilename : DATA_DIR + docName + "_" + secNumber;
@@ -285,16 +329,35 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Gets the list of {@code Document}s on which the {@code User} has permissions.
+     */
     private void documentsList() {
         if (session != null)
             Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.LIST);
         else System.err.println("You're not logged in");
     }
 
+    /**
+     * Shares a document with another {@code User}, giving him the permission to modify and see it.
+     * <p>
+     * When a {@code User} receives new permissions, a notification will be delivered to him.
+     *
+     * @param user  user's username
+     * @param docName   document's name
+     */
     private void share(String user, String docName) {
         Communication.send(clientOutputStream, clientInputStream, System.out::println, System.err::println, Commands.SHARE, user, docName);
     }
 
+    /**
+     * Gets the entire requested {@code Document} concatenating all its {@code Section}s together.
+     * <p>
+     * If the {@code outputName} is null, the {@code docName} value is used.
+     *
+     * @param docName   document's name
+     * @param outputName    output filename
+     */
     private void showDocument(String docName, String outputName) {
         if (session != null) {
             String filename = DATA_DIR + (outputName == null ? docName : outputName);
@@ -312,6 +375,9 @@ public class Client {
     }
 
 
+    /**
+     * Prints out all the notifications collected since the last method invocation.
+     */
     private void printNews() {
         if (session != null) {
             List<String> notifications = notificationThread.getAllNotifications();
@@ -321,6 +387,9 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Shows all the received {@code ChatMessage}s received since the last method invocation.
+     */
     private void showMessages() {
         if(session != null) {
             if(session.isEditing()) {
@@ -331,6 +400,11 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Sends a new {@code ChatMessage} UDP multicast packet to every listening {@code MessageReceiver}.
+     *
+     * @param text  message text
+     */
     private void sendMessage(String text) {
         if(session != null) {
             if(session.isEditing()) {
@@ -348,10 +422,18 @@ public class Client {
         } else System.err.println("You're not logged in");
     }
 
+    /**
+     * Prints out a generic {@code Exception} in a friendly format.
+     *
+     * @param ex
+     */
     private void printException(Exception ex) {
         System.err.println(ex.getMessage());
     }
 
+    /**
+     * Prints out and help message that sums up the {@code Client} commands list.
+     */
     private void printCommandsHelp() {
         String message =
                 "The following commands are available:\n" +
@@ -371,6 +453,14 @@ public class Client {
                         "  send TEXT: to send the TEXT message into the document chat";
         System.out.println(message);
     }
+
+    /**
+     * Manages the commands dispatching loop that iterates over the {@code String} given to the
+     * prompt, interprets the corresponding command and executes the respective action.
+     *
+     * @throws NotBoundException    if a RMI registration error occurs
+     * @throws IOException  if a registration I/O error occurs
+     */
     private void commandDispatchingLoop() throws NotBoundException, IOException {
         String command = null;
         Scanner input = new Scanner(System.in);

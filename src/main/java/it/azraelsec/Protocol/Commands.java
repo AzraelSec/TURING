@@ -1,7 +1,13 @@
 package it.azraelsec.Protocol;
 
+/**
+ * The {@code Commands} enumeration encapsulates all the commands that {@code Client} and {@code Server}
+ * will exchange between them via their main TCP connection.
+ *
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public enum Commands {
-    REGISTER,
     LOGIN,
     LOGOUT,
     CREATE,
@@ -11,17 +17,26 @@ public enum Commands {
     SHOW_DOCUMENT,
     LIST,
     SHARE,
-    CHAT_SEND,
-    CHAT_RECV,
     SUCCESS,
     FAILURE,
     NEW_NOTIFICATIONS,
     EXIT;
 
+    /**
+     * Gets the integer corresponding to the instance {@code Commands} kind.
+     *
+     * @return code integer representation
+     */
     public int getCode() {
         return this.ordinal();
     }
 
+    /**
+     * Returns the {@code Commands} value related to the input code value.
+     *
+     * @param code  code value
+     * @return  related command
+     */
     public static Commands getCommand(int code) {
         try{
             return values()[code];

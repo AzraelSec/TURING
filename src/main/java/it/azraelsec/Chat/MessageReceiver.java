@@ -3,6 +3,7 @@ package it.azraelsec.Chat;
 import it.azraelsec.Client.Client;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -11,6 +12,7 @@ import java.nio.channels.MembershipKey;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -119,6 +121,7 @@ public class MessageReceiver extends Thread {
             messages = messageQueue.toArray(new ChatMessage[0]);
             messageQueue.clear();
         }
+        Arrays.sort(messages);
         return messages;
     }
 

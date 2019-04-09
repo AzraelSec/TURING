@@ -14,12 +14,30 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.*;
 
+/**
+ * The {@code NotificationClientThread} class is a Thread implementation that acts like a
+ * reverse TCP server: waits for new connection using multiplexing (to ensure that a gentle
+ * termination process is adopted) and when a new one is created, it exploits the {@code Protocol}
+ * package to serve two kinds of commands: NEW_NOTIFICATIONS and EXIT.
+ * <p>
+ * The {@code NEW_NOTIFICATIONS} makes the client to add the incoming notifications to its internal
+ * {@code List}, to allow the {@code Client} to fetch them all asynchronously.
+ * <p>
+ * The {@code EXIT} tells the {@code NotificationClientThread} that the actual session is about
+ * to be ended up. This way, it can be shutdown in a gentle way.
+ *
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public class NotificationClientThread extends Thread {
     private final List<String> localNotificationQueue;
     private final HashMap<Commands, Execution> handlers;
     private boolean closing;
     private int servingPort;
 
+    /**
+     * Initializes the {@code NotificationClientThread}.
+     */
     public NotificationClientThread() {
         servingPort = 0;
         handlers = new HashMap<>();
@@ -28,6 +46,10 @@ public class NotificationClientThread extends Thread {
         this.localNotificationQueue = new ArrayList<>();
     }
 
+    /**
+     * Activates the Thread, making it serving the new incoming connections and handling their
+     * requests.
+     */
     @Override
     public void run() {
         Socket notificationSocket = null;
@@ -84,6 +106,13 @@ public class NotificationClientThread extends Thread {
         }
     }
 
+    /**
+     * Handles the {@code NEW_NOTIFICATIONS} {@code Commands}, adding the notifications to the
+     * pre-existing ones, present in the queue.
+     *
+     * @param args  command arguments
+     * @param sendback  execution result way
+     */
     private void onNews(Object[] args, Result sendback) {
         synchronized (localNotificationQueue) {
             localNotificationQueue.add((String) args[0]);
@@ -91,17 +120,32 @@ public class NotificationClientThread extends Thread {
         sendback.send(Commands.SUCCESS, "Notification has been added to client's notifications queue");
     }
 
+    /**
+     * Handles the {@code EXIT} {@code Commands}, notifying the {@code NotificationClientThread} that
+     * the requests handle loop needs to ends up.
+     *
+     * @param args  command arguments
+     * @param sendback  execution result way
+     */
     private void onClosing(Object[] args, Result sendback) {
         closing = true;
         sendback.send(Commands.SUCCESS, "Notification server is closing");
     }
 
+    /**
+     * Clears the notifications queue.
+     */
     public void clearNotificationList() {
         synchronized (localNotificationQueue) {
             localNotificationQueue.clear();
         }
     }
 
+    /**
+     * Gets all the notifications received since the last method invocation.
+     *
+     * @return  the notification strings array
+     */
     public ArrayList<String> getAllNotifications() {
         ArrayList<String> notifications = new ArrayList<>();
         synchronized (localNotificationQueue) {
@@ -113,6 +157,11 @@ public class NotificationClientThread extends Thread {
         return notifications;
     }
 
+    /**
+     * Gets the port {@code NotificationClientThread} is listening on.
+     *
+     * @return  the serving port number
+     */
     public int getNotificationLocalPort() {
         return servingPort;
     }

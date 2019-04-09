@@ -1,7 +1,6 @@
 package it.azraelsec.Server;
 
 import it.azraelsec.Chat.CDAManager;
-import it.azraelsec.Documents.Document;
 import it.azraelsec.Documents.DocumentsDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -21,6 +20,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+/**
+ * The {@code Server} class represents the process that serves the {@code Client} connection and spawn new
+ * {@code TCPConnectionDispatcher} threads to handler them.
+ * <p>
+ * The server uses a simple approach waiting new incoming connection through a blocking {@code accept} method
+ * invocation.
+ *
+ * @see DocumentsDatabase
+ * @see CDAManager
+ * @see ExecutorService
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
+ */
 public class Server {
     private static int TCP_PORT = 1337;
     private static int RMI_PORT = 3400;
@@ -33,6 +45,9 @@ public class Server {
     private final ExecutorService TCPConnectionDispatcher;
     private final CDAManager cdaManager;
 
+    /**
+     * Initializes the {@code Server}.
+     */
     public Server() {
         usersDB = null;
         documentDatabase = null;
@@ -41,10 +56,22 @@ public class Server {
         cdaManager = new CDAManager();
     }
 
-    public static String getDataDirectoryPath() {
+    /**
+     * Gets the static {@code DATA_DIR} {@code String}.
+     *
+     * @return  DATA_DIR string
+     */
+    static String getDataDirectoryPath() {
         return DATA_DIR;
     }
 
+    /**
+     * Acquires the command line arguments and compute the options based on these values, that ones found
+     * in the JSON configuration file and tha default ones.
+     *
+     * @param cmdOptions    command line options
+     * @throws RemoteException  if RMI connection error occurs
+     */
     private void bootstrap(Namespace cmdOptions) throws RemoteException {
         Optional.ofNullable(cmdOptions.getString("config_file")).ifPresent(this::loadConfig);
         TCP_PORT = Optional.ofNullable( cmdOptions.getInt("tcp_command_port") ).orElseGet( () -> TCP_PORT );
@@ -62,6 +89,13 @@ public class Server {
             storeDocumentsDB();
         }));
     }
+
+    /**
+     * Makes the underlining TCP {@code ServerSocket} waiting for new incoming connections and spawns new
+     * {@code TCPRequestHandler} to handle them in a new {@code Thread}.
+     * <p>
+     * This method just does not end up because a server is, for definition, a process that always serves.
+     */
     private void serve() {
         try(ServerSocket TCPServer = new ServerSocket()) {
             TCPServer.bind(new InetSocketAddress(TCP_PORT));
@@ -77,6 +111,12 @@ public class Server {
             ex.printStackTrace();
         }
     }
+
+    /**
+     * Stores {@code UsersDB} object through serialization.
+     *
+     * @return  true if file has been serialized, false otherwise
+     */
     private boolean storeUsersDB() {
         try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(DATA_DIR + "db.dat"))) {
             output.writeObject(usersDB);
@@ -87,6 +127,11 @@ public class Server {
         }
     }
 
+    /**
+     * Loads {@code UsersDB} object though deserialization.
+     *
+     * @return  {@code UsersDB} if it exists, null otherwise
+     */
     private UsersDB loadUsersDB() {
         try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DATA_DIR + "db.dat"))) {
             return (UsersDB) input.readObject();
@@ -96,6 +141,11 @@ public class Server {
         }
     }
 
+    /**
+     * Stores {@code DocumentsDatabase} object through serialization.
+     *
+     * @return  true if file has been serialized, false otherwise
+     */
     private boolean storeDocumentsDB() {
         try(ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(DATA_DIR + "docs.dat"))) {
             output.writeObject(documentDatabase);
@@ -105,6 +155,11 @@ public class Server {
         }
     }
 
+    /**
+     * Loads {@code DocumentsDatabase} object through deserialization.
+     *
+     * @return {@code DocumentsDatabase} if it exists, null otherwise
+     */
     private DocumentsDatabase loadDocumentsDB() {
         try(ObjectInputStream input = new ObjectInputStream(new FileInputStream(DATA_DIR + "docs.dat"))) {
             return (DocumentsDatabase) input.readObject();
@@ -113,21 +168,39 @@ public class Server {
         }
     }
 
+    /**
+     * Returns a pre-existent {@code DocumentsDatabase} if it exists, a new one otherwise.
+     *
+     * @return  valid {@code DocumentsDatabase}
+     */
     private DocumentsDatabase initDocumentsDB() {
         DocumentsDatabase loadedDocumentsDB = loadDocumentsDB();
         return loadedDocumentsDB == null ? new DocumentsDatabase() : loadedDocumentsDB;
     }
 
+    /**
+     * Returns a pre-existent {@code UsersDB} if it exists, a new one otherwise.
+     *
+     * @return valide {@code UsersDB}
+     */
     private UsersDB initUsersDB() {
         UsersDB loadedUsersDB = loadUsersDB();
         return loadedUsersDB == null ? new UsersDB() : loadedUsersDB;
     }
 
+    /**
+     * Checks if the {@code DATA_DIR} exists, and creates it it not.
+     */
     private void checkDataDirectory() {
         File dataDir = new File(DATA_DIR);
         if(!dataDir.isDirectory() || !dataDir.exists()) dataDir.mkdirs();
     }
 
+    /**
+     * Tries to parse the JSON configuration file, collecting all the configurations.
+     *
+     * @param filePath  configuration file path
+     */
     private void loadConfig(String filePath) {
         if(checkConfigFile(filePath))
         {
@@ -145,19 +218,26 @@ public class Server {
         else System.out.println("Configuration file not found");
     }
 
+    /**
+     * Checks if the JSON configuration file exists and is a valid file type.
+     *
+     * @param filePath  configuration file path
+     * @return  true if {@code filePath} exists and is a valid file type, false otherwise
+     */
     private boolean checkConfigFile(String filePath) {
         File configFile = new File(filePath);
         return configFile.isFile() && configFile.exists();
     }
     private void RMIInit() throws RemoteException {
-        RegistrationStub remoteObject = new RegistrationStub(usersDB, onlineUsersDB);
+        RegistrationStub remoteObject = new RegistrationStub(usersDB);
         LocateRegistry.createRegistry(RMI_PORT);
         Registry registry = LocateRegistry.getRegistry(RMI_PORT);
         registry.rebind(RemoteRegistration.NAME, remoteObject);
     }
 
-    /***
-     * Main method
+    /**
+     * Entry Point
+     * @param args command line arguments
      */
     public static void main( String[] args )
     {

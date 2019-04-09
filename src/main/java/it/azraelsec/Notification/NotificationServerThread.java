@@ -2,20 +2,24 @@ package it.azraelsec.Notification;
 
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;
-import it.azraelsec.Protocol.Execution;
-import it.azraelsec.Protocol.Result;
 import it.azraelsec.Server.User;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.HashMap;
 import java.util.List;
 
 /**
- * Belongs to the Client object
+ * The {@code NotificationServerThread} class is a Thread implementation that acts like a
+ * reverse TCP client: it connects back to the {@code NotificationClientThread} and sends commands
+ * to signal new notifications or to make it shutdown.
+ * <p>
+ * Every 5 seconds it checks for new notifications related to the target {@code User} and, if
+ * it finds any of them, just fire a {@code NEW_NOTIFICATIONS} {@code Commands}.
+ *
+ * @author Federico Gerardi
+ * @author https://azraelsec.github.io/
  */
 public class NotificationServerThread extends Thread {
     private final String hostname;
@@ -23,6 +27,13 @@ public class NotificationServerThread extends Thread {
     private final User user;
     private boolean closing;
 
+    /**
+     * Initializes the {@code NotificationServerThread}.
+     *
+     * @param user  session user
+     * @param hostname  client hostname
+     * @param port  client notification listening port
+     */
     public NotificationServerThread(User user, String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
@@ -31,6 +42,9 @@ public class NotificationServerThread extends Thread {
         super.setDaemon(true);
     }
 
+    /**
+     * Activates the Thread, making it to fetch for new notifications.
+     */
     @Override
     public void run() {
         SocketAddress serverAddress = new InetSocketAddress(hostname, port);
@@ -55,6 +69,9 @@ public class NotificationServerThread extends Thread {
         }
     }
 
+    /**
+     * Imposes the {@code NotificationServerThread} to shutdown.
+     */
     public void close() {
         closing = true;
     }
