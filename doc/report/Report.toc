@@ -1,0 +1,2 @@
+\contentsline {section}{\numberline {1}Funzionalit\IeC {\`a} della piattaforma}{2}% 
+\contentsline {section}{\numberline {2}Interfaccia utente}{3}% 
