@@ -1,9 +1,9 @@
 package it.azraelsec.Server;
 
 import it.azraelsec.Chat.CDAManager;
-import it.azraelsec.Documents.Document;
-import it.azraelsec.Documents.DocumentsDatabase;
-import it.azraelsec.Documents.Section;
+import it.azraelsec.Document.Document;
+import it.azraelsec.Document.DocumentsDatabase;
+import it.azraelsec.Document.Section;
 import it.azraelsec.Notification.NotificationServerThread;
 import it.azraelsec.Protocol.Commands;
 import it.azraelsec.Protocol.Communication;

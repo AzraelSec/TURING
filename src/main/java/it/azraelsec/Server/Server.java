@@ -1,7 +1,7 @@
 package it.azraelsec.Server;
 
 import it.azraelsec.Chat.CDAManager;
-import it.azraelsec.Documents.DocumentsDatabase;
+import it.azraelsec.Document.DocumentsDatabase;
 import it.azraelsec.Protocol.RemoteRegistration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;

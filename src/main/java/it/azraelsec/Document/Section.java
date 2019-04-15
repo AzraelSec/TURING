@@ -1,4 +1,4 @@
-package it.azraelsec.Documents;
+package it.azraelsec.Document;
 
 import it.azraelsec.Server.User;
 

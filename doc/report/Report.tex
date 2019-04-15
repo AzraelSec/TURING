@@ -4,6 +4,7 @@
 \usepackage{titling}
 \usepackage{graphicx}
 \usepackage[bottom]{footmisc}
+\usepackage{hyperref}
 
 
 \newcommand{\logo}[1]{%
@@ -24,8 +25,7 @@
 	Federico Gerardi \\
 	Matricola: 508082 \\
 	\texttt{federicogerardi94@gmail.com}}
-\logo{logo}
-
+\logo{assets/logo}
 
 \lstset{
 	basicstyle=\footnotesize,
@@ -38,47 +38,38 @@
 	rangeprefix = \#,
 	includerangemarker = false
 }
+\lstdefinelanguage{JSON}{%
+	keywords={true, false, null, undefined},
+	keywordstyle=\bfseries,
+	ndkeywordstyle=\bfseries,
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\ttfamily,
+	stringstyle=\color{blue}\ttfamily,
+	morestring=[b]',
+	morestring=[b]`,
+	morestring=[b]"
+}
 \definecolor{lightgray}{gray}{0.95}
 
 \begin{document}
 \maketitle
 \bigskip
-\begin{abstract}
-TURING - \textit{disTribUted collaboRative edItiNG} è una piattaforma client-server realizzata come progetto finale per il modulo di Laboratorio dell'esame di Reti di Calcolatori della Laurea Triennale in informatica dell'Università di Pisa. Il progetto si basa sulla creazione di un sistema di document editing multiutente distribuito (simile a quello offerto da Docs di Google), che gestisce permessi di modifica e operazioni di aggiornamento dei contenuti dei documenti esistenti in maniera concorrente e consistente. Questo paper fornirà una panoramica della sua infrastruttura e illustrerà alcune scelte implementative.
-\end{abstract}
+\input{Sections/abstract.tex}
 
 \newpage
 
-\section{Funzionalità della piattaforma}
-Le funzionalità che la piattaforma implementa sono le seguenti:
-\begin{itemize}
-	\item Creazione di un nuovo utente;
-	\item Login dell'utente all'interno della piattaforma;
-	\item Inizio della fase di modifica di una specifica sezione di un documento;
-	\item Terminazione della fase di modifica e aggiornamento della relativa sezione sul server;
-	\item Visualizzazione di una sezione del documento;
-	\item Visualizzazione di un intero documento
-	\item Operazioni per l'invio/ricezione di messaggi in chat condivisa tra gli editor di più sezioni appartenenti allo stesso documento.
-	\item Condivisione dei permessi di accesso ad un documento di cui si è i proprietari ad altri utenti;
-	\item Gestione delle notifiche generate in seguito alla ricezione dei permessi di accesso ad un documento.
-\end{itemize}
+\tableofcontents
+\clearpage
 
-\section{Interfaccia utente}
-\subsection{Command Line Arguments}
-Utilizzando alcuni argomenti da linea di comando, è possibile specificare alcune preferenze\footnote{È possibile avere la lista completa attraverso l'invocazione dei due programmi con il flag \textit{-h} o \textit{--help} } del comportamento sia del client che del server. \\
-In particolare, le seguenti sono i parametri di connessione personalizzabili attraverso gli argomenti a riga di comando:
+\input{Sections/Funzioni_della_piattaforma.tex}
 
-\begin{itemize}
-	\item TCP\_PORT %to be continued...
-	\item UDP\_PORT
-\end{itemize}
+\input{Sections/Esecuzione_dell_applicazione.tex}
 
-\subsection{CLI}
-È possibile interagire con il sistema attraverso l'apposito client. Questo fornisce un interfaccia interattiva a riga di comando, con la quale è possibile interagire grazie all'inserimento iterativo di comandi utilizzando il relativo prompt.
+\input{Sections/Interfaccia_utente.tex}
 
-\begin{lstlisting}[caption="Turing Client - CLI", xleftmargin=.4\textwidth]
-127.0.0.1@TURING#
-\end{lstlisting}
+\input{Sections/Struttura_dei_package.tex}
 
 
 \end{document}

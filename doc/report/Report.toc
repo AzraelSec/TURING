@@ -1,2 +1,10 @@
-\contentsline {section}{\numberline {1}Funzionalit\IeC {\`a} della piattaforma}{2}% 
-\contentsline {section}{\numberline {2}Interfaccia utente}{3}% 
+\contentsline {section}{\numberline {1}Funzioni della piattaforma}{3}{section.1}% 
+\contentsline {section}{\numberline {2}Esecuzione dell'Applicazione}{3}{section.2}% 
+\contentsline {subsection}{\numberline {2.1}Compilazione}{3}{subsection.2.1}% 
+\contentsline {subsection}{\numberline {2.2}Server}{3}{subsection.2.2}% 
+\contentsline {subsection}{\numberline {2.3}Client}{3}{subsection.2.3}% 
+\contentsline {section}{\numberline {3}Interfaccia utente}{3}{section.3}% 
+\contentsline {subsection}{\numberline {3.1}Argomenti a Linea di Comando}{3}{subsection.3.1}% 
+\contentsline {paragraph}{File JSON di Configurazione}{4}{section*.2}% 
+\contentsline {subsection}{\numberline {3.2}CLI}{5}{subsection.3.2}% 
+\contentsline {section}{\numberline {4}Struttura dei Package}{5}{section.4}% 

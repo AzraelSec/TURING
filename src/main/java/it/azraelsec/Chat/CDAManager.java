@@ -1,6 +1,6 @@
 package it.azraelsec.Chat;
 
-import it.azraelsec.Documents.Document;
+import it.azraelsec.Document.Document;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
