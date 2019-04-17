@@ -1,9 +1,7 @@
 \BOOKMARK [1][-]{section.1}{Funzioni della piattaforma}{}% 1
-\BOOKMARK [1][-]{section.2}{Esecuzione dell'Applicazione}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Compilazione}{section.2}% 3
-\BOOKMARK [2][-]{subsection.2.2}{Server}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{Client}{section.2}% 5
-\BOOKMARK [1][-]{section.3}{Interfaccia utente}{}% 6
-\BOOKMARK [2][-]{subsection.3.1}{Argomenti a Linea di Comando}{section.3}% 7
-\BOOKMARK [2][-]{subsection.3.2}{CLI}{section.3}% 8
-\BOOKMARK [1][-]{section.4}{Struttura dei Package}{}% 9
+\BOOKMARK [1][-]{section.2}{Compilazione ed Esecuzione}{}% 2
+\BOOKMARK [1][-]{section.3}{Interfaccia utente}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Argomenti a Linea di Comando}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{CLI}{section.3}% 5
+\BOOKMARK [1][-]{section.4}{Struttura dei Package}{}% 6
+\BOOKMARK [1][-]{section.5}{Server}{}% 7

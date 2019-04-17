@@ -1,7 +1,28 @@
-\section{Esecuzione dell'Applicazione}
-\subsection{Compilazione}
-La compilazione viene gestita attraverso il toolkit \textit{Maven}, che ci permette di definire delle apposite routine\footnote{È definita anche una routine per \textit{pulire}} che si occuperanno di effettuare il packing sia del client che del server di TURING.\\
+\section{Compilazione ed Esecuzione}
+\paragraph{Compilazione}
+La compilazione viene gestita attraverso il toolkit \textit{Maven}, che ci permette di definire delle apposite routine\footnote{È definita anche una routine per \textit{pulire} attraverso il comando "\textit{mvn clean}"} che si occuperanno di effettuare il packing sia del client che del server di TURING in formato JAR.
 
+\begin{lstlisting}[language=bash, caption="Compilazione tramite Maven"]
+$ mvn package
+...
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.655 s
+[INFO] Finished at: 2019-xx-xxTxx:xx:xx+xx:xx
+[INFO] ------------------------------------------------------------------------
+\end{lstlisting}
+\pagebreak
+A seguito della compilazione, dunque, verranno generati i seguenti file:
+\begin{itemize}
+	\item ./target/TURING-Client.jar
+	\item ./target/TURING-Server.jar
+\end{itemize}
 
-\subsection{Server}
-\subsection{Client}
+\paragraph{Esecuzione}
+Per eseguire i due JAR basta utilizzare il comando \textit{java -jar}, passando,come argomento, il file da eseguire.
+
+\begin{lstlisting}[language=bash, caption="Esempio di esecuzione di TURING-Server.jar]
+$ java -jar ./target/TURING-Server.jar -h
+\end{lstlisting}
+
