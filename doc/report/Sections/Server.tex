@@ -1,1 +1,23 @@
 \section{Server}
+Il server ha una struttura multi-thread: ogni nuova connessione viene gestita da un differente \textit{TCPRequestHandler}\footnote{Che eredita da \textit{Runnable}}, il cui ciclo di vita viene incapsulato all'interno di un \textit{ThreadPoolExecutor}\footnote{Si è scelto di utilizzare un ThreadPoolExecutor di tipo \textit{CachedThreadPool}}. 
+
+\begin{lstlisting}[caption="Gestione di una nuova connessione", language=java]
+while(true) {
+	Socket socket = TCPServer.accept();
+	System.out.println("New TCP connection: " + socket.getRemoteSocketAddress().toString());
+	TCPConnectionDispatcher.submit(new TCPRequestHandler(onlineUsersDB, usersDB, documentDatabase, cdaManager, socket));
+}
+\end{lstlisting}
+
+L'oggetto Server, attraverso il metodo \textit{bootstrap}, effettua l'inizializzazione di tutti gli oggetti interni necessari all'esecuzione del ciclo di vita dell'applicazione e tutte le proprietà, considerando le impostazioni scelte dall'utente in fase di avvio del processo\footnote{L'ordine di priorità delle impostazioni è il seguente: riga di comando $\succ$ file di configurazione $\succ$ valori di default}:
+\begin{itemize}
+	\item Inizializzazione dei valori delle configurazioni;
+	\item Controllo della directory di lavoro del server\footnote{Controlla se la directory esiste ed è valida, altrimenti la crea};
+	\item Carica le informazioni del database degli utenti\footnote{Astratto dalla classe \textit{UsersDB}};
+	\item Carica le informazioni del database dei documenti\footnote{Astratto dalla classe \textit{DocumentsDatabase}};
+	\item Configura lo stub RMI per la chiamata \textit{register} remota;
+	\item Registra un handler per gestire la chiusura del processo.
+\end{itemize}
+
+\paragraph{Persistenza delle informazioni}
+Come detto procedentemente, il server inizializza il database dei documenti e quello degli utenti effettuando una ricerca all'interno della cartella di lavoro per trovare i file \textbf{db.dat} e \textbf{docs.dat}. Se questi vengono individuati, Server tenta di effettuare una deserializzazione per ricostruire gli oggetti originali, altrimenti vengono utilizzati degli oggetti vergini non contenenti alcun dato.

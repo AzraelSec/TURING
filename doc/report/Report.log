@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  17 APR 2019 16:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  22 APR 2019 12:52
 entering extended mode
 **./Report.tex
 (Report.tex
@@ -240,20 +240,20 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 ) (Report.aux)
 \openout1 = `Report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 56.
-LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
 \c@lstlisting=\count107
 
 ("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-p
@@ -287,7 +287,7 @@ G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
 \AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring OFF on input line 56.
+Package hyperref Info: Link coloring OFF on input line 57.
 
 ("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/latex/hyperref\nameref.s
 ty"
@@ -299,23 +299,23 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count114
 )
-LaTeX Info: Redefining \ref on input line 56.
-LaTeX Info: Redefining \pageref on input line 56.
-LaTeX Info: Redefining \nameref on input line 56.
+LaTeX Info: Redefining \ref on input line 57.
+LaTeX Info: Redefining \pageref on input line 57.
+LaTeX Info: Redefining \nameref on input line 57.
  (Report.out) (Report.out)
 \@outlinefile=\write3
 \openout3 = `Report.out'.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 58.
+(Font)              <12> on input line 59.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 58.
+(Font)              <8> on input line 59.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 58.
+(Font)              <6> on input line 59.
 <assets/logo.jpg, id=31, 108.405pt x 110.66344pt>
 File: assets/logo.jpg Graphic file (type jpg)
 <use assets/logo.jpg>
-Package pdftex.def Info: assets/logo.jpg  used on input line 58.
+Package pdftex.def Info: assets/logo.jpg  used on input line 59.
 (pdftex.def)             Requested size: 86.7241pt x 88.53085pt.
  (Sections/abstract.tex
 Overfull \hbox (0.17365pt too wide) in paragraph at lines 2--3
@@ -391,49 +391,54 @@ File: assets/package_diagram.jpg Graphic file (type jpg)
 Package pdftex.def Info: assets/package_diagram.jpg  used on input line 14.
 (pdftex.def)             Requested size: 345.0pt x 219.43382pt.
 ) [6 <./assets/package_diagram.jpg>]
-(Sections/Server.tex)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 76.
+(Sections/Server.tex
+("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\lstlang1.
+sty"
+File: lstlang1.sty 2019/02/27 1.8b listings language file
+))
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 77.
  [7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 76.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 77.
  (Report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 76.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 76.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 77.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 77.
 Package rerunfilecheck Info: File `Report.out' has not changed.
 (rerunfilecheck)             Checksum: 2F94DF2D831C8D55B37388ADB7795411;408.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 76.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 77.
  ) 
 Here is how much of TeX's memory you used:
- 7444 strings out of 492946
- 107933 string characters out of 3126389
+ 7517 strings out of 492946
+ 108958 string characters out of 3126389
  407995 words of memory out of 3000000
- 11218 multiletter control sequences out of 15000+200000
- 10050 words of font info for 36 fonts, out of 3000000 for 9000
+ 11275 multiletter control sequences out of 15000+200000
+ 10359 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  35i,8n,51p,688b,1189s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts
 /cm/cmbx10.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/pu
 blic/amsfonts/cm/cmbx12.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmbx9.pfb><C:/Users/feder/AppData/Local/Programs/
-MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/feder/AppData/Loc
-al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/feder
-/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:
+onts/type1/public/amsfonts/cm/cmbx8.pfb><C:/Users/feder/AppData/Local/Programs/
+MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx9.pfb><C:/Users/feder/AppData/Loc
+al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/feder
+/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:
 /Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-mr6.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/am
-sfonts/cm/cmr7.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmr8.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9
-/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/feder/AppData/Local/Programs
-/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/feder/AppData/L
-ocal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/fed
-er/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-<C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/c
-m/cmti8.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publi
-c/amsfonts/cm/cmti9.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts
-/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/feder/AppData/Local/Programs/MiK
-TeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/feder/AppData/Local
-/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on Report.pdf (7 pages, 481641 bytes).
+mr17.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmr6.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/typ
+e1/public/amsfonts/cm/cmr7.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.
+9/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/feder/AppData/Local/Program
+s/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr9.pfb><C:/Users/feder/AppData/Lo
+cal/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/fed
+er/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><
+C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
+/cmti10.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmti8.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts
+/type1/public/amsfonts/cm/cmti9.pfb><C:/Users/feder/AppData/Local/Programs/MiKT
+eX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/feder/AppData/Local/
+Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/feder/A
+ppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on Report.pdf (7 pages, 502317 bytes).
 PDF statistics:
- 199 PDF objects out of 1000 (max. 8388607)
- 47 named destinations out of 1000 (max. 500000)
+ 224 PDF objects out of 1000 (max. 8388607)
+ 60 named destinations out of 1000 (max. 500000)
  72 words of extra memory for PDF output out of 10000 (max. 10000000)
 

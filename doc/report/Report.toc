@@ -8,3 +8,4 @@
 \contentsline {subsection}{\numberline {3.2}CLI}{5}{subsection.3.2}% 
 \contentsline {section}{\numberline {4}Struttura dei Package}{6}{section.4}% 
 \contentsline {section}{\numberline {5}Server}{7}{section.5}% 
+\contentsline {paragraph}{Persistenza delle informazioni}{7}{section*.5}% 
