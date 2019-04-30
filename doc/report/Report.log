@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  22 APR 2019 12:52
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  30 APR 2019 17:26
 entering extended mode
 **./Report.tex
 (Report.tex
@@ -240,20 +240,20 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 ) (Report.aux)
 \openout1 = `Report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
-LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 58.
+LaTeX Font Info:    ... okay on input line 58.
 \c@lstlisting=\count107
 
 ("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-p
@@ -287,7 +287,7 @@ G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
 \AtBeginShipoutBox=\box30
-Package hyperref Info: Link coloring OFF on input line 57.
+Package hyperref Info: Link coloring OFF on input line 58.
 
 ("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/latex/hyperref\nameref.s
 ty"
@@ -299,23 +299,23 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count114
 )
-LaTeX Info: Redefining \ref on input line 57.
-LaTeX Info: Redefining \pageref on input line 57.
-LaTeX Info: Redefining \nameref on input line 57.
+LaTeX Info: Redefining \ref on input line 58.
+LaTeX Info: Redefining \pageref on input line 58.
+LaTeX Info: Redefining \nameref on input line 58.
  (Report.out) (Report.out)
 \@outlinefile=\write3
 \openout3 = `Report.out'.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 59.
+(Font)              <12> on input line 60.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 59.
+(Font)              <8> on input line 60.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 59.
-<assets/logo.jpg, id=31, 108.405pt x 110.66344pt>
+(Font)              <6> on input line 60.
+<assets/logo.jpg, id=39, 108.405pt x 110.66344pt>
 File: assets/logo.jpg Graphic file (type jpg)
 <use assets/logo.jpg>
-Package pdftex.def Info: assets/logo.jpg  used on input line 59.
+Package pdftex.def Info: assets/logo.jpg  used on input line 60.
 (pdftex.def)             Requested size: 86.7241pt x 88.53085pt.
  (Sections/abstract.tex
 Overfull \hbox (0.17365pt too wide) in paragraph at lines 2--3
@@ -359,17 +359,17 @@ File: lstlang1.sty 2019/02/27 1.8b listings language file
 sty"
 File: lstlang1.sty 2019/02/27 1.8b listings language file
 )
-Overfull \hbox (42.20813pt too wide) in paragraph at lines 8--9
+Overfull \hbox (16.70757pt too wide) in paragraph at lines 8--9
 [][] 
  []
 
 
-Overfull \hbox (42.20813pt too wide) in paragraph at lines 10--11
+Overfull \hbox (16.70757pt too wide) in paragraph at lines 10--11
 [][] 
  []
 
 
-Overfull \hbox (42.20813pt too wide) in paragraph at lines 13--14
+Overfull \hbox (16.70757pt too wide) in paragraph at lines 13--14
 [][] 
  []
 
@@ -378,14 +378,14 @@ Overfull \hbox (42.20813pt too wide) in paragraph at lines 13--14
 ]) (Sections/Interfaccia_utente.tex [4]
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 27.
-<assets/help_message.jpg, id=100, 626.34pt x 193.47281pt>
+<assets/help_message.jpg, id=110, 626.34pt x 193.47281pt>
 File: assets/help_message.jpg Graphic file (type jpg)
 <use assets/help_message.jpg>
 Package pdftex.def Info: assets/help_message.jpg  used on input line 40.
 (pdftex.def)             Requested size: 276.00105pt x 85.2582pt.
 ) (Sections/Struttura_dei_package.tex
 [5 <./assets/help_message.jpg>]
-<assets/package_diagram.jpg, id=117, 1202.4925pt x 764.8575pt>
+<assets/package_diagram.jpg, id=127, 1202.4925pt x 764.8575pt>
 File: assets/package_diagram.jpg Graphic file (type jpg)
 <use assets/package_diagram.jpg>
 Package pdftex.def Info: assets/package_diagram.jpg  used on input line 14.
@@ -395,25 +395,51 @@ Package pdftex.def Info: assets/package_diagram.jpg  used on input line 14.
 ("C:\Users\feder\AppData\Local\Programs\MiKTeX 2.9\tex/latex/listings\lstlang1.
 sty"
 File: lstlang1.sty 2019/02/27 1.8b listings language file
-))
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 77.
- [7]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 77.
+) [7]
+<assets/server/thread_activation_sequence_diagram.jpg, id=163, 524.96124pt x 38
+3.4325pt>
+File: assets/server/thread_activation_sequence_diagram.jpg Graphic file (type j
+pg)
+<use assets/server/thread_activation_sequence_diagram.jpg>
+Package pdftex.def Info: assets/server/thread_activation_sequence_diagram.jpg  
+used on input line 35.
+(pdftex.def)             Requested size: 262.47998pt x 191.71577pt.
+) (Sections/Client.tex [8 <./assets/server/thread_activation_sequence_diagram.j
+pg>]
+<assets/client/thread_activation_sequence_diagram.jpg, id=174, 585.18625pt x 27
+1.0125pt>
+File: assets/client/thread_activation_sequence_diagram.jpg Graphic file (type j
+pg)
+<use assets/client/thread_activation_sequence_diagram.jpg>
+Package pdftex.def Info: assets/client/thread_activation_sequence_diagram.jpg  
+used on input line 12.
+(pdftex.def)             Requested size: 292.5924pt x 135.5059pt.
+) (Sections/Protocollo_di_scambio.tex)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 82.
+ [9 <./assets/client/thread_activation_sequence_diagram.jpg>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 82.
  (Report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 77.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 77.
-Package rerunfilecheck Info: File `Report.out' has not changed.
-(rerunfilecheck)             Checksum: 2F94DF2D831C8D55B37388ADB7795411;408.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 77.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 82.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 82.
+
+
+Package rerunfilecheck Warning: File `Report.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `Report.out':
+(rerunfilecheck)             Before: 079E35DAEA6E1626087DAA0CD9B23B46;520
+(rerunfilecheck)             After:  9D35A2DF83F4AE7705D2F70618593BAF;507.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 82.
  ) 
 Here is how much of TeX's memory you used:
- 7517 strings out of 492946
- 108958 string characters out of 3126389
- 407995 words of memory out of 3000000
- 11275 multiletter control sequences out of 15000+200000
+ 7549 strings out of 492946
+ 109842 string characters out of 3126389
+ 414007 words of memory out of 3000000
+ 11286 multiletter control sequences out of 15000+200000
  10359 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,8n,51p,688b,1189s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 35i,8n,51p,1198b,1199s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts
 /cm/cmbx10.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts/type1/pu
 blic/amsfonts/cm/cmbx12.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/f
@@ -436,9 +462,9 @@ c/amsfonts/cm/cmti8.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts
 eX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/feder/AppData/Local/
 Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/feder/A
 ppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on Report.pdf (7 pages, 502317 bytes).
+Output written on Report.pdf (9 pages, 621621 bytes).
 PDF statistics:
- 224 PDF objects out of 1000 (max. 8388607)
- 60 named destinations out of 1000 (max. 500000)
- 72 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 257 PDF objects out of 1000 (max. 8388607)
+ 72 named destinations out of 1000 (max. 500000)
+ 98 words of extra memory for PDF output out of 10000 (max. 10000000)
 

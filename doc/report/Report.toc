@@ -9,3 +9,8 @@
 \contentsline {section}{\numberline {4}Struttura dei Package}{6}{section.4}% 
 \contentsline {section}{\numberline {5}Server}{7}{section.5}% 
 \contentsline {paragraph}{Persistenza delle informazioni}{7}{section*.5}% 
+\contentsline {paragraph}{Sessione}{8}{section*.6}% 
+\contentsline {paragraph}{Thread Life-cycle}{8}{section*.7}% 
+\contentsline {section}{\numberline {6}Client}{9}{section.6}% 
+\contentsline {paragraph}{Thread Life-cycle}{9}{section*.8}% 
+\contentsline {section}{\numberline {7}Protocollo di scambio}{9}{section.7}% 
