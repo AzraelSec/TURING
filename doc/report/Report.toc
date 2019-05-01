@@ -13,4 +13,7 @@
 \contentsline {paragraph}{Thread Life-cycle}{8}{section*.7}% 
 \contentsline {section}{\numberline {6}Client}{9}{section.6}% 
 \contentsline {paragraph}{Thread Life-cycle}{9}{section*.8}% 
-\contentsline {section}{\numberline {7}Protocollo di scambio}{9}{section.7}% 
+\contentsline {section}{\numberline {7}Protocollo di scambio}{10}{section.7}% 
+\contentsline {paragraph}{Approccio Funzionale}{10}{section*.9}% 
+\contentsline {subsection}{\numberline {7.1}Rappresentazione dei dati}{10}{subsection.7.1}% 
+\contentsline {subsection}{\numberline {7.2}Sistema di notifiche}{11}{subsection.7.2}% 

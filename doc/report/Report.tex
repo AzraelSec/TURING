@@ -6,12 +6,13 @@
 \usepackage{graphicx}
 \usepackage[bottom]{footmisc}
 \usepackage{hyperref}
+\usepackage{multicol}
 
 
 \newcommand{\logo}[1]{%
 	\postauthor{%
 	\end{tabular}\par\end{center}
-\begin{center}\includegraphics[scale=0.8]{#1}\end{center}
+	\begin{center}\includegraphics[scale=0.8]{#1}\end{center}
 \vskip0.5em}%
 }
 
@@ -76,6 +77,8 @@
 \input{Sections/Server.tex}
 
 \input{Sections/Client.tex}
+
+\newpage
 
 \input{Sections/Protocollo_di_scambio.tex}
 
