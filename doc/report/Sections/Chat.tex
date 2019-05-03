@@ -1,0 +1,18 @@
+\section{Chat}
+Ogni peer della chat è un client/server multicast che si lega ad un \textit{multicast group} di riferimento per i gruppi di utenti che stanno editando sezioni appartenenti ad uno stesso documento: se non esistono editor operanti sulle sezioni di un documento, la chat ad esso relativa non dovrebbe concettualmente esistere.
+
+\paragraph{Assegnazione Dinamica dei Gruppi Multicast}
+Per implementare questo comportamento, ho scelto di generare e gestire gli indirizzi delle chat in maniera dinamica, attraverso un algoritmo di generazione molto semplice illustrato in figura \ref{fig:multicast_address_generation} . A gestire l'allocazione degli indirizzi è l'oggetto \textbf{CDAManager}\footnote{CDAManager := Chat Dynamic Address Manager}. Questo si serve della rappresentazione intera decimale degli indirizzi IPv4 per maneggiarli in maniera più semplice e gestirne meglio l'incremento.
+
+\begin{figure}[h]
+	\caption{Activity Diagram - Generazione dinamica indirizzo di multicast}
+	\label{fig:multicast_address_generation}
+	\includegraphics[scale=0.5]{assets/multicast_address_generation_algorithm.jpg}
+\end{figure}
+
+Quando tutti gli editor terminano la modifica della sezione, l'indirizzo diventa nuovamente disponibile e riutilizzabile da un altro gruppo multicast.
+
+\paragraph{Comunicazione tra i Client}
+Il server TURING non gioca alcun ruolo nella comunicazione tramite il servizio di chat se non quello di fornire, come descritto in precedenza, l'indirizzo di multicast relativo al canale del documento che si sta editando.
+
+Questa struttura ha permesso di snellire il processo di funzionamento del servizio, evitando di interporre inutilmente il server in funzione di \textit{proxy} delle richieste tra i fruitori.

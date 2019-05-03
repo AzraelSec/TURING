@@ -51,4 +51,15 @@ Vengono utilizzati degli oggetti di tipo \textbf{DataInputStream} e \textbf{Data
 \end{figure}
 
 \subsection{Sistema di notifiche}
-Il sistema di notifiche è un esempio 
+Oltre al sistema di interpretazione ed esecuzione dei comandi, anche il sistema di notifiche viene gestito attraverso un'implementazione dello stesso protocollo client-server. Infatti, quando l'utente effettua il login tramite il client, viene stabilita una seconda connessione TCP dal server verso il client.\\ È da notare che:
+\begin{enumerate}
+	\item il client TURING è in questo scenario il server\footnote{Il server delle notifiche adotta \textbf{multiplexing} per gestire in maniera corretta segnali del processo} delle notifiche (la connessione è, come detto precedentemente, instaurata al contrario);
+	\item il server delle notifiche controlla in maniera periodica se ci sono notifiche nuove da inviare al client e, in questo caso, effettua una \textit{send()} utilizzando i metodi definiti dal protocollo di scambio dei messaggi;
+	\item il client delle notifiche rimane in ascolto per eventuali notifiche inviate dal server, registrando opportuni handler per la gestione di questa casistica;
+	\item quando il client riceve un comando di chiusura dal prompt, comunica la cosa al server attraverso l'impiego della connessione di controllo principale. Sarà poi il server, attraverso il proprio \textbf{NotificationServerThread}, a comunicare al \textbf{NotificationClientThread} la chiusura della connessione per le notifiche.
+\end{enumerate}
+
+\begin{figure}[h]
+	\caption{Sequence Diagram - Ciclo di vita del sistema di notifiche }
+	\includegraphics[scale=0.4]{assets/notification_lifec-ycle}
+\end{figure}

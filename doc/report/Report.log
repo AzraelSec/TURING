@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  1 MAY 2019 15:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.4.7)  3 MAY 2019 19:15
 entering extended mode
 **./Report.tex
 (Report.tex
@@ -362,7 +362,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 61.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 61.
-<assets/logo.jpg, id=47, 108.405pt x 110.66344pt>
+<assets/logo.jpg, id=59, 108.405pt x 110.66344pt>
 File: assets/logo.jpg Graphic file (type jpg)
 <use assets/logo.jpg>
 Package pdftex.def Info: assets/logo.jpg  used on input line 61.
@@ -428,14 +428,14 @@ Overfull \hbox (16.70757pt too wide) in paragraph at lines 13--14
 ]) (Sections/Interfaccia_utente.tex [4]
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 27.
-<assets/help_message.jpg, id=120, 626.34pt x 193.47281pt>
+<assets/help_message.jpg, id=135, 626.34pt x 193.47281pt>
 File: assets/help_message.jpg Graphic file (type jpg)
 <use assets/help_message.jpg>
 Package pdftex.def Info: assets/help_message.jpg  used on input line 40.
 (pdftex.def)             Requested size: 276.00105pt x 85.2582pt.
 ) (Sections/Struttura_dei_package.tex
 [5 <./assets/help_message.jpg>]
-<assets/package_diagram.jpg, id=137, 1202.4925pt x 764.8575pt>
+<assets/package_diagram.jpg, id=152, 1202.4925pt x 764.8575pt>
 File: assets/package_diagram.jpg Graphic file (type jpg)
 <use assets/package_diagram.jpg>
 Package pdftex.def Info: assets/package_diagram.jpg  used on input line 14.
@@ -446,7 +446,7 @@ Package pdftex.def Info: assets/package_diagram.jpg  used on input line 14.
 sty"
 File: lstlang1.sty 2019/02/27 1.8b listings language file
 ) [7]
-<assets/server/thread_activation_sequence_diagram.jpg, id=173, 524.96124pt x 38
+<assets/server/thread_activation_sequence_diagram.jpg, id=188, 524.96124pt x 38
 3.4325pt>
 File: assets/server/thread_activation_sequence_diagram.jpg Graphic file (type j
 pg)
@@ -456,7 +456,7 @@ used on input line 35.
 (pdftex.def)             Requested size: 262.47998pt x 191.71577pt.
 ) (Sections/Client.tex [8 <./assets/server/thread_activation_sequence_diagram.j
 pg>]
-<assets/client/thread_activation_sequence_diagram.jpg, id=184, 585.18625pt x 27
+<assets/client/thread_activation_sequence_diagram.jpg, id=199, 585.18625pt x 27
 1.0125pt>
 File: assets/client/thread_activation_sequence_diagram.jpg Graphic file (type j
 pg)
@@ -466,28 +466,68 @@ used on input line 12.
 (pdftex.def)             Requested size: 292.5924pt x 135.5059pt.
 ) [9 <./assets/client/thread_activation_sequence_diagram.jpg>]
 (Sections/Protocollo_di_scambio.tex [10]
-<assets/string_representation.png, id=204, 454.69875pt x 157.58875pt>
+<assets/string_representation.png, id=219, 454.69875pt x 157.58875pt>
 File: assets/string_representation.png Graphic file (type png)
 <use assets/string_representation.png>
 Package pdftex.def Info: assets/string_representation.png  used on input line 5
 0.
 (pdftex.def)             Requested size: 272.82135pt x 94.55397pt.
-)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 85.
  [11 <./assets/string_representation.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 85.
+<assets/notification_lifec-ycle.jpg, id=240, 1150.2975pt x 556.0775pt>
+File: assets/notification_lifec-ycle.jpg Graphic file (type jpg)
+<use assets/notification_lifec-ycle.jpg>
+Package pdftex.def Info: assets/notification_lifec-ycle.jpg  used on input line
+ 64.
+(pdftex.def)             Requested size: 460.11086pt x 222.42705pt.
+
+Overfull \hbox (115.11086pt too wide) in paragraph at lines 64--65
+[][] 
+ []
+
+) (Sections/Documenti.tex
+Overfull \hbox (1.38733pt too wide) in paragraph at lines 4--5
+ []\OT1/cmr/bx/n/10 Accesso Es-clu-sivo[] \OT1/cmr/m/n/10 La ges-tione dell'acc
+esso es-clu-sivo al con-tenuto delle sezioni
+ []
+
+[12 <./assets/notification_lifec-ycle.jpg>]
+<assets/document_class_diagram.jpg, id=254, 447.6725pt x 220.825pt>
+File: assets/document_class_diagram.jpg Graphic file (type jpg)
+<use assets/document_class_diagram.jpg>
+Package pdftex.def Info: assets/document_class_diagram.jpg  used on input line 
+10.
+(pdftex.def)             Requested size: 313.3686pt x 154.57643pt.
+) (Sections/Chat.tex [13 <./assets/document_class_diagram.jpg>]
+<assets/multicast_address_generation_algorithm.jpg, id=269, 721.69624pt x 521.9
+5pt>
+File: assets/multicast_address_generation_algorithm.jpg Graphic file (type jpg)
+
+<use assets/multicast_address_generation_algorithm.jpg>
+Package pdftex.def Info: assets/multicast_address_generation_algorithm.jpg  use
+d on input line 10.
+(pdftex.def)             Requested size: 360.84724pt x 260.97435pt.
+
+Overfull \hbox (15.84724pt too wide) in paragraph at lines 10--11
+[][] 
+ []
+
+) (Sections/Librerie_addizionali.tex [14 <./assets/multicast_address_generation
+_algorithm.jpg>])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 91.
+ [15]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 91.
  (Report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 85.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 85.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 91.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 91.
 Package rerunfilecheck Info: File `Report.out' has not changed.
-(rerunfilecheck)             Checksum: 5F187A983009F6358C8785315CE087D9;654.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 85.
+(rerunfilecheck)             Checksum: 09817F968A4005A93BCF471C10F2D77E;799.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 91.
  ) 
 Here is how much of TeX's memory you used:
- 7704 strings out of 492946
- 112329 string characters out of 3126389
- 418834 words of memory out of 3000000
- 11417 multiletter control sequences out of 15000+200000
+ 7757 strings out of 492946
+ 113564 string characters out of 3126389
+ 418984 words of memory out of 3000000
+ 11434 multiletter control sequences out of 15000+200000
  10359 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  35i,8n,51p,1198b,1211s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -513,9 +553,9 @@ c/amsfonts/cm/cmti8.pfb><C:/Users/feder/AppData/Local/Programs/MiKTeX 2.9/fonts
 eX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Users/feder/AppData/Local/
 Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb><C:/Users/feder/A
 ppData/Local/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on Report.pdf (11 pages, 645514 bytes).
+Output written on Report.pdf (15 pages, 907996 bytes).
 PDF statistics:
- 303 PDF objects out of 1000 (max. 8388607)
- 91 named destinations out of 1000 (max. 500000)
- 119 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 371 PDF objects out of 1000 (max. 8388607)
+ 115 named destinations out of 1000 (max. 500000)
+ 158 words of extra memory for PDF output out of 10000 (max. 10000000)
 
