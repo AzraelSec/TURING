@@ -1,5 +1,5 @@
 \section{Protocollo di scambio}
-Il protocollo utilizzato per lo scambio di messaggi è molto semplice e si basa sulla ricezione da parte del server di comandi e del successivo invio di esito dell'operazione al client. Ogni operazione, infatti, può portare all'invio da parte del server di una risposta \textbf{success} o \textbf{failure} \footnote{Si è scelto di generalizzare quanto più possibile il concetto di \textit{messaggio}, così da includervi anche quelli di risposta}.
+Il protocollo utilizzato per lo scambio di messaggi è molto semplice e si basa sulla ricezione da parte del server di comandi e del successivo invio di esito dell'operazione al client. Ogni operazione, infatti, può portare all'invio da parte del server di una risposta \textbf{success} o \textbf{failure} \footnote{Si è scelto di generalizzare quanto più possibile il concetto di \textit{messaggio}, così da includervi anche quelli di risposta.}.
 
 Dunque, tutti i tipi di messaggi scambiati sono inglobati all'interno dell'enum \textbf{Commands}:
 \begin{multicols}{2}
@@ -21,9 +21,9 @@ Dunque, tutti i tipi di messaggi scambiati sono inglobati all'interno dell'enum 
 		\item EXIT
 	\end{itemize}
 \end{multicols}
-Per ognuno di questi, viene definito un array di tipi, così da dare la possibilità al client di controllare che il tipo di dato degli argomenti inviati sia corretto e per permettere al server di inferire l'ordine ed il tipo di \textit{receive()} da effettuare per ricostruire i dati inviati. Nella sezione \ref{rappresentazione_dei_dati} verrà chiarito meglio in che modo questi vengano scambiati a partire dai loro tipi.
+Per ognuno di questi, viene definito un array di tipi, così da dare la possibilità al client di controllare che il tipo di dato degli argomenti inviati sia corretto e permettere al server di inferire l'ordine ed il tipo di \textit{receive()} da effettuare per ricostruire i dati inviati. Nella sezione \ref{rappresentazione_dei_dati} verrà chiarito meglio in che modo questi vengano scambiati a partire dai loro tipi.
 
-Il protocollo prevede anche delle procedure per lo scambio di stream di dati, utili per l'invio e ricezione da parte del server del contenuto dei file rappresentanti le sezioni dei documenti o la loro concatenazione\footnote{Infatti, durante l'esecuzione del comando \textbf{SHOW\_DOCUMENT}, il server si serve della concatenazione di più stream di file per crearne uno unico da poter inviare al client, sfruttando la funzione appena descritta} .
+Il protocollo prevede anche delle procedure per lo scambio di stream di dati, utili per l'invio e ricezione da parte del server del contenuto dei file rappresentanti le sezioni dei documenti o la loro concatenazione\footnote{Infatti, durante l'esecuzione del comando \textbf{SHOW\_DOCUMENT}, il server si serve della concatenazione di più stream di file per crearne uno unico da poter inviare al client, sfruttando la funzione appena descritta.} .
 L'invio di stream dev'essere \underline{necessariamente} preceduto da un normale invio di esito da parte del server per evitare la rottura del protocollo.
 
 \paragraph{Approccio Funzionale}
@@ -42,7 +42,7 @@ private void documentsList() {
 \end{lstlisting}
 
 \subsection{Rappresentazione dei dati}\label{rappresentazione_dei_dati}
-Vengono utilizzati degli oggetti di tipo \textbf{DataInputStream} e \textbf{DataOutputStream} rispettivamente per la ricezione e l'invio dei dati sul socket, per riuscire ad inviarne la corretta rappresentazione in byte\footnote{Molto utile per l'invio corretto di interi, per esempio, evitando di dover effettuare interpretazione di testo contenente la loro rappresentazione}. Se per gli interi questo approccio risulta sufficiente ad assicurarne correttamente lo scambio, per le stringhe si è dovuto far affidamento all'invio di una informazione addizionale: il numero di byte che le compongono. Infatti, ogni volta che si presenta la necessità di inviare una stringa, si procede prima alla \textit{send()} del numero di byte che la compongono e successivamente a quella dell'array dei dati. In questo modo, utilizzando l'approccio contrario, è possibile sapere di preciso quanti byte appartenenti alla stringa da ricevere prelevare dal buffer.
+Vengono utilizzati degli oggetti di tipo \textbf{DataInputStream} e \textbf{DataOutputStream} rispettivamente per la ricezione e l'invio dei dati sul socket, per riuscire ad inviarne la corretta rappresentazione in byte\footnote{Molto utile per l'invio corretto di interi, per esempio, evitando di dover effettuare interpretazione di testo contenente la loro rappresentazione.}. Se per gli interi questo approccio risulta sufficiente ad assicurarne correttamente lo scambio, per le stringhe si è dovuto far affidamento all'invio di una informazione addizionale: il numero di byte che le compongono. Infatti, ogni volta che si presenta la necessità di inviare una stringa, si procede prima alla \textit{send()} del numero di byte che la compongono e successivamente a quella dell'array dei dati. In questo modo, utilizzando l'approccio contrario, è possibile sapere di preciso quanti byte appartenenti alla stringa da ricevere prelevare dal buffer.
 
 \begin{figure}[h]
 	\caption{Schema di rappresentazione delle stringhe}
@@ -53,7 +53,7 @@ Vengono utilizzati degli oggetti di tipo \textbf{DataInputStream} e \textbf{Data
 \subsection{Sistema di notifiche}
 Oltre al sistema di interpretazione ed esecuzione dei comandi, anche il sistema di notifiche viene gestito attraverso un'implementazione dello stesso protocollo client-server. Infatti, quando l'utente effettua il login tramite il client, viene stabilita una seconda connessione TCP dal server verso il client.\\ È da notare che:
 \begin{enumerate}
-	\item il client TURING è in questo scenario il server\footnote{Il server delle notifiche adotta \textbf{multiplexing} per gestire in maniera corretta segnali del processo} delle notifiche (la connessione è, come detto precedentemente, instaurata al contrario);
+	\item il client TURING è in questo scenario il server\footnote{Il server delle notifiche adotta \textbf{multiplexing} per gestire in maniera corretta segnali del processo.} delle notifiche (la connessione è, come detto precedentemente, instaurata al contrario);
 	\item il server delle notifiche controlla in maniera periodica se ci sono notifiche nuove da inviare al client e, in questo caso, effettua una \textit{send()} utilizzando i metodi definiti dal protocollo di scambio dei messaggi;
 	\item il client delle notifiche rimane in ascolto per eventuali notifiche inviate dal server, registrando opportuni handler per la gestione di questa casistica;
 	\item quando il client riceve un comando di chiusura dal prompt, comunica la cosa al server attraverso l'impiego della connessione di controllo principale. Sarà poi il server, attraverso il proprio \textbf{NotificationServerThread}, a comunicare al \textbf{NotificationClientThread} la chiusura della connessione per le notifiche.
