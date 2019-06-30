@@ -52,3 +52,8 @@ This is an example config file:
     "DATA_DIR": "/var/tmp/IdontKnow",   
 }
 ```
+
+### Documentation
+It's possible to find a **PDF report** which points out the main technical details of the project and the **Javadoc HTML**.
+
+Both of those are attached to this repository under the **"doc" directory**.
