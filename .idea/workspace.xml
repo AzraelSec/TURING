@@ -5,19 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c42fd80-4600-4e87-a868-7ef7db3305d0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/doc/report/Report.log" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Report.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Report.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Report.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Report.synctex.gz" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Report.synctex.gz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Report.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Report.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Chat.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Chat.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Client.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Client.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Documenti.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Documenti.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Esecuzione_dell_applicazione.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Esecuzione_dell_applicazione.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Funzioni_della_piattaforma.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Funzioni_della_piattaforma.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Interfaccia_utente.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Interfaccia_utente.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Protocollo_di_scambio.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Protocollo_di_scambio.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Server.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Server.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/report/Sections/Struttura_dei_package.tex" beforeDir="false" afterPath="$PROJECT_DIR$/doc/report/Sections/Struttura_dei_package.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,7 +28,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
+            <state relative-caret-position="396">
               <caret line="32" column="28" selection-start-line="32" selection-start-column="13" selection-end-line="32" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -58,11 +49,35 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/ChatMessage.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="418">
-              <caret line="19" column="27" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="27" />
+              <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="334">
+              <caret line="24" column="27" selection-start-line="24" selection-start-column="27" selection-end-line="24" selection-end-column="27" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="312">
+              <caret line="81" column="57" selection-start-line="81" selection-start-column="57" selection-end-line="81" selection-end-column="57" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -73,7 +88,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="594">
+            <state relative-caret-position="9306">
               <caret line="450" column="51" selection-start-line="450" selection-start-column="51" selection-end-line="450" selection-end-column="51" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -166,10 +181,10 @@
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/Server.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/TCPRequestHandler.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Protocol/Communication.java" />
-        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java" />
-        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/UsersDB.java" />
         <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java" />
+        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java" />
+        <option value="$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java" />
       </list>
     </option>
   </component>
@@ -558,10 +573,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1874" height="1096" extended-state="6" />
+    <frame x="-8" y="-8" width="1858" height="1096" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.46832815" visible="true" weight="0.1907387" />
-      <window_info id="Structure" order="1" sideWeight="0.5316719" side_tool="true" visible="true" weight="0.1907387" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.46521288" visible="true" weight="0.19744161" />
+      <window_info id="Structure" order="1" sideWeight="0.5347871" side_tool="true" visible="true" weight="0.19744161" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
       <window_info id="Favorites" order="4" sideWeight="0.5160955" side_tool="true" weight="0.16372657" />
@@ -581,7 +596,7 @@
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="right" id="Maven" order="4" />
       <window_info anchor="right" id="Palette&#9;" order="5" />
-      <window_info anchor="right" id="Run" order="6" side_tool="true" weight="0.28445426" />
+      <window_info anchor="right" id="Run" order="6" side_tool="true" weight="0.28420466" />
     </layout>
     <layout-to-restore>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48494288" visible="true" weight="0.16041896" />
@@ -998,16 +1013,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="26" column="11" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="11" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/Server.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="871">
@@ -1032,16 +1037,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="22">
-          <caret line="9" column="65" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="65" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Document/DocumentsDatabase.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="704">
@@ -1053,6 +1048,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret line="19" column="24" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="32" column="28" selection-start-line="32" selection-start-column="13" selection-end-line="32" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1071,18 +1076,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Client/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="594">
+        <state relative-caret-position="9306">
           <caret line="450" column="51" selection-start-line="450" selection-start-column="51" selection-end-line="450" selection-end-column="51" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/MessageReceiver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="32" column="28" selection-start-line="32" selection-start-column="13" selection-end-line="32" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1092,7 +1087,27 @@
     <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/ChatMessage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="418">
-          <caret line="19" column="27" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="27" />
+          <caret line="19" column="28" selection-start-line="19" selection-start-column="28" selection-end-line="19" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Server/User.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="24" column="27" selection-start-line="24" selection-start-column="27" selection-end-line="24" selection-end-column="27" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/it/azraelsec/Chat/CDAManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="81" column="57" selection-start-line="81" selection-start-column="57" selection-end-line="81" selection-end-column="57" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

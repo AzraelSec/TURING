@@ -79,7 +79,7 @@ public class CDAManager {
      * <p>
      * It basically shifts two bytes of the IPv4 raw representation and
      * gets the value casting it to long. Then sums all together obtaining
-     * the resulting value. The logical AND operator (& 0xFFL) is there to
+     * the resulting value. The logical AND operator (and 0xFFL) is there to
      * avoid the sign extension caused by the conversion.
      *
      * @param address   the converted address

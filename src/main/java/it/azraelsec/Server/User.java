@@ -21,8 +21,8 @@ public class User implements Serializable {
     /**
      * Initializes a {@code User} object.
      *
-     * @param username
-     * @param password
+     * @param username user's username
+     * @param password user's password
      */
     public User(String username, String password) {
         this.username = username;
